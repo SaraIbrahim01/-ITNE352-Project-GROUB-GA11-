@@ -6,6 +6,34 @@ import requests
 HOST = "0.0.0.0"
 PORT = 5000
 
+def get_main_menu():
+    menu = (
+        "MAIN MENU:\n"
+        "1 - Search headlines\n"
+        "2 - List of Sources\n"
+        "3 - Quit\n"
+    )
+    return menu
+def get_headlines_menu():
+    menu = (
+        "HEADLINES MENU:\n"
+        "1 - Search for keywords\n"
+        "2 - Search by category\n"
+        "3 - Search by country\n"
+        "4 - List all new headlines\n"
+        "5 - Back to the main menu\n"
+    )
+    return menu
+def get_sources_menu():
+    menu = (
+        "SOURCES MENU:\n"
+        "1 - Search by category\n"
+        "2 - Search by country\n"
+        "3 - Search by language\n"
+        "4 - List all\n"
+        "5 - Back to the main menu\n"
+    )
+    return menu
 
 # handle_client function will process each client connection
 def handle_client(sock, addr):
@@ -64,6 +92,13 @@ def start_server():
 
 # Run server
 start_server()
+
+
+
+
+
+
+
 
 
 

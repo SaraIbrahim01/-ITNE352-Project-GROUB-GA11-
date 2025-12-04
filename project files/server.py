@@ -11,6 +11,19 @@ def handle_client(sock, addr):
     print(f"[NEW CONNECTION] {client_name} ({addr[0]}:{addr[1]})")
     welcome_msg = f"Welcome {client_name}! You are connected to the news server."
     sock.send(welcome_msg.encode('utf-8'))
+while True:
+    request = sock.recv(4096).decode('utf-8').strip()
+    if not request:
+        print("[DISCONNECTED]", client_name, "connection closed.")
+        break
+    print("[REQUEST]", client_name, "requested:", request)
+    if request == "quit":
+        print("[DISCONNECTED]", client_name, "sent quit.")
+        break
+    sock.close()
+    print("[THREAD END] Finished handling client", client_name)
+    
+
 
 def start_server():
         server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -20,7 +33,9 @@ def start_server():
 while True:
     client_sock, client_addr = server_sock.accept()
     print(f"[ACCEPTED] Connection from {client_addr}")
-    
+    t = threading.Thread(target=handle_client,args=(client_sock, client_addr))
+    t.start()
+
 
 
 

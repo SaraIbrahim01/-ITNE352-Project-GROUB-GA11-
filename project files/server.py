@@ -57,15 +57,19 @@ def handle_client(sock, addr):
             break
 
         print("[REQUEST]", client_name, "requested:", request)
+        if request == "1":
+            sock.send(get_headlines_menu().encode('utf-8'))
 
-        # quit command
-        if request == "quit":
-            print("[DISCONNECTED]", client_name, "sent quit.")
+        elif request == "2":
+            sock.send(get_sources_menu().encode('utf-8'))
+
+        elif request == "3" or request == "quit":
+            print("[DISCONNECTED]", client_name, "selected quit.")
             break
 
-        # simple response (placeholder)
-        response = "Server received your request: " + request + "\n"
-        sock.send(response.encode('utf-8'))
+        else:
+            response = "Invalid option. Please choose from the menu.\n"
+            sock.send(response.encode('utf-8'))
 
     # close socket
     sock.close()

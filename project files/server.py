@@ -17,7 +17,10 @@ def start_server():
         server_sock.bind((HOST, PORT))
         server_sock.listen(3)
         print(f"[SERVER STARTED] Listening on {HOST}:{PORT}")
-        
+while True:
+    client_sock, client_addr = server_sock.accept()
+    print(f"[ACCEPTED] Connection from {client_addr}")
+    
 
 
 

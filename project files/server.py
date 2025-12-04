@@ -11,6 +11,14 @@ def handle_client(sock, addr):
     print(f"[NEW CONNECTION] {client_name} ({addr[0]}:{addr[1]})")
     welcome_msg = f"Welcome {client_name}! You are connected to the news server."
     sock.send(welcome_msg.encode('utf-8'))
-    
+
+def start_server():
+        server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_sock.bind((HOST, PORT))
+        server_sock.listen(3)
+        print(f"[SERVER STARTED] Listening on {HOST}:{PORT}")
+        
+
+
 
      

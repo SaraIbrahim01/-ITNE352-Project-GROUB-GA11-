@@ -47,6 +47,9 @@ def handle_client(sock, addr):
     welcome_msg = f"Welcome {client_name}! You are connected to the news server.\n"
     sock.send(welcome_msg.encode('utf-8'))
 
+    sock.send(get_main_menu().encode('utf-8'))
+    current_menu = "main"
+
     # Loop to receive messages from this client
     while True:
         request = sock.recv(4096).decode('utf-8').strip()
@@ -57,25 +60,51 @@ def handle_client(sock, addr):
             break
 
         print("[REQUEST]", client_name, "requested:", request)
-        if request == "1":
-            sock.send(get_headlines_menu().encode('utf-8'))
 
-        elif request == "2":
-            sock.send(get_sources_menu().encode('utf-8'))
+        # ==============================
+        # MAIN MENU
+        # ==============================
+        if current_menu == "main":
+            if user_input == "1":
+                current_menu = "headlines"
+                sock.send(get_headlines_menu().encode('utf-8'))
 
-        elif request == "3" or request == "quit":
-            print("[DISCONNECTED]", client_name, "selected quit.")
-            break
+            elif user_input == "2":
+                current_menu = "sources"
+                sock.send(get_sources_menu().encode('utf-8'))
 
-        else:
-            response = "Invalid option. Please choose from the menu.\n"
-            sock.send(response.encode('utf-8'))
+            elif user_input == "3" or user_input == "quit":
+                print("[DISCONNECTED]", client_name, "selected quit from main menu.")
+                break
 
+            else:
+                response = "Invalid option in MAIN MENU. Please choose 1, 2, or 3.\n"
+                sock.send(response.encode('utf-8'))
+
+        # ==============================
+        # HEADLINES MENU
+        # ==============================
+        elif current_menu == "headlines":
+            if user_input == "5":
+                current_menu = "main"
+                sock.send(get_main_menu().encode('utf-8'))
+            else:
+                response = "Headlines option not implemented yet. Use 5 to go back.\n"
+                sock.send(response.encode('utf-8'))
+
+        # ==============================
+        # SOURCES MENU
+        # ==============================
+        elif current_menu == "sources":
+            if user_input == "5":
+                current_menu = "main"
+                sock.send(get_main_menu().encode('utf-8'))
+            else:
+                response = "Sources option not implemented yet. Use 5 to go back.\n"
+                sock.send(response.encode('utf-8'))
     # close socket
     sock.close()
     print("[THREAD END] Finished handling client", client_name)
-
-
 
 # start server function (listening and accepting clients)
 def start_server():

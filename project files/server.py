@@ -171,7 +171,31 @@ elif request == "2":
                 else:
                     msg = "Invalid option in MAIN MENU. Please choose 1, 2, or 3.\n"
                     sock_a.sendall(msg.encode("utf-8"))
+                        elif state == "country_input":
+        country = request.strip().lower()
 
+        data = fetch_headlines_by_country(country)
+        articles = data.get("articles", [])
+        news_list = articles[:15]
+
+        fname = f"{client_name}_headlines_country_{GROUP_ID}.json"
+        with open(fname, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+        if not news_list:
+            sock_a.sendall("No results found for this country.\n".encode("utf-8"))
+            state = "menu"
+            sock_a.sendall(get_headlines_menu().encode("utf-8"))
+        else:
+            lines = []
+            for i, art in enumerate(news_list):
+                source = (art.get("source") or {}).get("name", "Unknown")
+                title = art.get("title", "No title")
+                lines.append(f"{i}) {source} | {title}")
+            lines.append("\nEnter article number OR B to go back:\n")
+            sock_a.sendall("\n".join(lines).encode("utf-8"))
+            state = "country_select"
+            
             # ================= HEADLINES MENU =================
 elif current_menu == "headlines":
     if state == "menu":
@@ -310,8 +334,39 @@ elif current_menu == "headlines":
                     )
                     sock_a.sendall(text.encode("utf-8"))
                     sock_a.sendall("Press B to go back.\n".encode("utf-8"))
-     
+                        elif state == "country_select":
+        if request.upper() == "B":
+            state = "menu"
+            sock_a.sendall(get_headlines_menu().encode("utf-8"))
+        else:
+            try:
+                idx = int(request)
+            except ValueError:
+                sock_a.sendall("Please enter a number or B.\n".encode("utf-8"))
+            else:
+                if idx < 0 or idx >= len(news_list):
+                    sock_a.sendall("Invalid index.\n".encode("utf-8"))
+                else:
+                    art = news_list[idx]
+                    source = (art.get("source") or {}).get("name", "Unknown")
+                    author = art.get("author", "Unknown")
+                    title = art.get("title", "No title")
+                    url = art.get("url", "No URL")
+                    desc = art.get("description", "No description")
+                    published = art.get("publishedAt", "Unknown")
 
+                    text = (
+                        "\nARTICLE DETAILS:\n"
+                        f"Source: {source}\n"
+                        f"Author: {author}\n"
+                        f"Title: {title}\n"
+                        f"URL: {url}\n"
+                        f"Description: {desc}\n"
+                        f"Published: {published}\n\n"
+                    )
+                    sock_a.sendall(text.encode("utf-8"))
+                    sock_a.sendall("Press B to go back.\n".encode("utf-8"))
+                    
             # ================= SOURCES MENU =================
             elif current_menu == "sources":
                 if request == "5":

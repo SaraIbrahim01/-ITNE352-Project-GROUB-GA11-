@@ -1,10 +1,13 @@
 import socket
 import threading
 import json
-import requests
+import requests 
 
 HOST = "0.0.0.0"
 PORT = 5000
+API_KEY = '7e105333ff414544a47e8f0febc01b18'
+HEADLINES_URL ="https://newsapi.org/v2/top-headlines"
+GROUP_ID = 'GA11'
 
 def get_main_menu():
     menu = (
@@ -14,6 +17,7 @@ def get_main_menu():
         "3 - Quit\n"
     )
     return menu
+
 def get_headlines_menu():
     menu = (
         "HEADLINES MENU:\n"
@@ -24,6 +28,7 @@ def get_headlines_menu():
         "5 - Back to the main menu\n"
     )
     return menu
+
 def get_sources_menu():
     menu = (
         "SOURCES MENU:\n"
@@ -35,96 +40,91 @@ def get_sources_menu():
     )
     return menu
 
-# handle_client function will process each client connection
-def handle_client(sock, addr):
-    print(f"[THREAD START] New client from {addr}")  # new client arrived
 
-    # Receive client name
-    client_name = sock.recv(4096).decode('utf-8').strip()
-    print(f"[NEW CONNECTION] {client_name} ({addr[0]}:{addr[1]})")
+def handle_client(sock_a, sock_addr, client_id):
+    try:
+        print(f"\n========== Start of thread id:{client_id} ==========")
 
-    # Send welcome message to client
-    welcome_msg = f"Welcome {client_name}! You are connected to the news server.\n"
-    sock.send(welcome_msg.encode('utf-8'))
+        client_name = sock_a.recv(4096).decode('utf-8').strip()
+        print(f">>> Connection has been established with >> {client_name} "
+              f"({sock_addr[0]}:{sock_addr[1]})")
 
-    sock.send(get_main_menu().encode('utf-8'))
-    current_menu = "main"
+        welcome_msg = f"Welcome {client_name}! You are connected to the news server.\n"
+        sock_a.sendall(welcome_msg.encode('utf-8'))
+        sock_a.sendall(get_main_menu().encode('utf-8'))
 
-    # Loop to receive messages from this client
-    while True:
-        request = sock.recv(4096).decode('utf-8').strip()
+        current_menu = "main"
 
-        # client closed connection
-        if not request:
-            print("[DISCONNECTED]", client_name, "connection closed.")
-            break
-
-        print("[REQUEST]", client_name, "requested:", request)
-
-        # ==============================
-        # MAIN MENU
-        # ==============================
-        if current_menu == "main":
-            if user_input == "1":
-                current_menu = "headlines"
-                sock.send(get_headlines_menu().encode('utf-8'))
-
-            elif user_input == "2":
-                current_menu = "sources"
-                sock.send(get_sources_menu().encode('utf-8'))
-
-            elif user_input == "3" or user_input == "quit":
-                print("[DISCONNECTED]", client_name, "selected quit from main menu.")
+        while True:
+            request = sock_a.recv(4096).decode('utf-8').strip()
+            if not request:
+                print(f"<<< {client_name} disconnected (empty request)")
                 break
 
-            else:
-                response = "Invalid option in MAIN MENU. Please choose 1, 2, or 3.\n"
-                sock.send(response.encode('utf-8'))
+            print(f"[REQUEST] from {client_name}: {request}")
 
-        # ==============================
-        # HEADLINES MENU
-        # ==============================
-        elif current_menu == "headlines":
-            if user_input == "5":
-                current_menu = "main"
-                sock.send(get_main_menu().encode('utf-8'))
-            else:
-                response = "Headlines option not implemented yet. Use 5 to go back.\n"
-                sock.send(response.encode('utf-8'))
+            # ================= MAIN MENU =================
+            if current_menu == "main":
+                if request == "1":
+                    current_menu = "headlines"
+                    sock_a.sendall(get_headlines_menu().encode('utf-8'))
 
-        # ==============================
-        # SOURCES MENU
-        # ==============================
-        elif current_menu == "sources":
-            if user_input == "5":
-                current_menu = "main"
-                sock.send(get_main_menu().encode('utf-8'))
-            else:
-                response = "Sources option not implemented yet. Use 5 to go back.\n"
-                sock.send(response.encode('utf-8'))
-    # close socket
-    sock.close()
-    print("[THREAD END] Finished handling client", client_name)
+                elif request == "2":
+                    current_menu = "sources"
+                    sock_a.sendall(get_sources_menu().encode('utf-8'))
 
-# start server function (listening and accepting clients)
+                elif request == "3" or request.lower() == "quit":
+                    print(f"[DISCONNECTED] {client_name} selected quit from main menu.")
+                    break
+
+                else:
+                    msg = "Invalid option in MAIN MENU. Please choose 1, 2, or 3.\n"
+                    sock_a.sendall(msg.encode('utf-8'))
+
+            # ================= HEADLINES MENU =================
+            elif current_menu == "headlines":
+                if request == "5":
+                    current_menu = "main"
+                    sock_a.sendall(get_main_menu().encode('utf-8'))
+                else:
+                    msg = "Headlines options not implemented yet. Use 5 to go back.\n"
+                    sock_a.sendall(msg.encode('utf-8'))
+
+            # ================= SOURCES MENU =================
+            elif current_menu == "sources":
+                if request == "5":
+                    current_menu = "main"
+                    sock_a.sendall(get_main_menu().encode('utf-8'))
+                else:
+                    msg = "Sources options not implemented yet. Use 5 to go back.\n"
+                    sock_a.sendall(msg.encode('utf-8'))
+
+    finally:
+        sock_a.close()
+        print(f"========== End of thread id:{client_id} ==========")
+
+
 def start_server():
-    server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_sock.bind((HOST, PORT))
-    server_sock.listen(3)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((HOST, PORT))
+        s.listen(3)  
+        print(f"[SERVER STARTED] Listening on {HOST}:{PORT}")
 
-    print(f"[SERVER STARTED] Listening on {HOST}:{PORT}")
+        client_threads = []
+        while True:
+            sock_a, sock_addr = s.accept()
+            print(f"[ACCEPTED] Connection from {sock_addr}")
 
-    # Accept loop
-    while True:
-        client_sock, client_addr = server_sock.accept()
-        print(f"[ACCEPTED] Connection from {client_addr}")
+            t = threading.Thread(
+                target=handle_client,
+                args=(sock_a, sock_addr, len(client_threads) + 1)
+            )
+            client_threads.append(t)
+            t.start()
 
-        t = threading.Thread(target=handle_client, args=(client_sock, client_addr))
-        t.start()
 
-
-# Run server
-start_server()
+if __name__ == "__main__":
+    start_server()
 
 
 

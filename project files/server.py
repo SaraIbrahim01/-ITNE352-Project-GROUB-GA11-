@@ -367,6 +367,7 @@ elif current_menu == "headlines":
                     sock_a.sendall(text.encode("utf-8"))
                     sock_a.sendall("Press B to go back.\n".encode("utf-8"))
                     
+                    
             # ================= SOURCES MENU =================
             elif current_menu == "sources":
                 if request == "5":

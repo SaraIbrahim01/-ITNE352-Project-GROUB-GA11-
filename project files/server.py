@@ -59,8 +59,14 @@ def fetch_headlines_by_category(category):
     }
     response = requests.get(HEADLINES_URL, params=params)
     return response.json()
-
-
+def fetch_headlines_by_country(country_code):
+    params = {
+        "apiKey": API_KEY,
+        "country": country_code,
+        "language": "en"
+    }
+    r = requests.get(HEADLINES_URL, params=params)
+    return r.json()
 
 
 def handle_client(sock_a, sock_addr, client_id):
@@ -147,7 +153,7 @@ def handle_client(sock_a, sock_addr, client_id):
             print(f"[REQUEST] from {client_name}: {request}")
 
             # ================= MAIN MENU =================
-if current_menu == "main":
+    if current_menu == "main":
     if request == "1":
 current_menu = "headlines"
 state = "menu"

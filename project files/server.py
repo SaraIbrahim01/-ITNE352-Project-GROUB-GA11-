@@ -40,6 +40,16 @@ def get_sources_menu():
     )
     return menu
 
+    def fetch_headlines_by_keyword(keyword):
+     params = {
+        "apiKey": API_KEY,
+        "q": keyword,
+        "language": "en"
+    }
+
+    response = requests.get(HEADLINES_URL, params=params)
+    return response.json()
+
 
 def handle_client(sock_a, sock_addr, client_id):
     try:

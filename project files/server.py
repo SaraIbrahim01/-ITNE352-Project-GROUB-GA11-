@@ -65,6 +65,8 @@ def handle_client(sock_a, sock_addr, client_id):
 
         current_menu = "main"
 
+        last_headlines = []
+        hl_mode = "menu"
         while True:
             request = sock_a.recv(4096).decode('utf-8').strip()
             if not request:
@@ -92,13 +94,29 @@ def handle_client(sock_a, sock_addr, client_id):
                     sock_a.sendall(msg.encode('utf-8'))
 
             # ================= HEADLINES MENU =================
-            elif current_menu == "headlines":
-                if request == "5":
+         elif current_menu == "headlines":
+
+            if headlines_state == "menu":
+
+                if request == "1":
+                    sock.send("Enter keyword:\n".encode('utf-8'))
+                    headlines_state = "keyword_input"
+
+                elif request == "2":
+                    sock.send("Category search not available yet.\n".encode('utf-8'))
+
+                elif request == "3":
+                    sock.send("Country search not available yet.\n".encode('utf-8'))
+
+                elif request == "4":
+                    sock.send("List all headlines not available yet.\n".encode('utf-8'))
+
+                elif request == "5":
                     current_menu = "main"
-                    sock_a.sendall(get_main_menu().encode('utf-8'))
+                    sock.send(get_main_menu().encode('utf-8'))
+
                 else:
-                    msg = "Headlines options not implemented yet. Use 5 to go back.\n"
-                    sock_a.sendall(msg.encode('utf-8'))
+                    sock.send("Invalid option.\n".encode('utf-8'))
 
             # ================= SOURCES MENU =================
             elif current_menu == "sources":

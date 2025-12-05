@@ -39,7 +39,6 @@ def get_sources_menu():
         "5 - Back to the main menu\n"
     )
     return menu
-
     def fetch_headlines_by_keyword(keyword):
      params = {
         "apiKey": API_KEY,
@@ -65,8 +64,8 @@ def handle_client(sock_a, sock_addr, client_id):
 
         current_menu = "main"
 
-        last_headlines = []
-        hl_mode = "menu"
+        state = "menu"
+        news_list = []
         while True:
             request = sock_a.recv(4096).decode('utf-8').strip()
             if not request:
@@ -77,15 +76,17 @@ def handle_client(sock_a, sock_addr, client_id):
 
             # ================= MAIN MENU =================
             if current_menu == "main":
+
                 if request == "1":
                     current_menu = "headlines"
+                    state = "menu"
                     sock_a.sendall(get_headlines_menu().encode('utf-8'))
 
                 elif request == "2":
                     current_menu = "sources"
                     sock_a.sendall(get_sources_menu().encode('utf-8'))
 
-                elif request == "3" or request.lower() == "quit":
+                elif request == "3" or request == "quit":
                     print(f"[DISCONNECTED] {client_name} selected quit from main menu.")
                     break
 
@@ -94,29 +95,60 @@ def handle_client(sock_a, sock_addr, client_id):
                     sock_a.sendall(msg.encode('utf-8'))
 
             # ================= HEADLINES MENU =================
-         elif current_menu == "headlines":
+            elif current_menu == "headlines":
 
-            if headlines_state == "menu":
+                if state == "menu":
 
-                if request == "1":
-                    sock.send("Enter keyword:\n".encode('utf-8'))
-                    headlines_state = "keyword_input"
+                    if request == "1":
+                        sock_a.send("Enter keyword:\n".encode('utf-8'))
+                        state = "keyword_input"
 
-                elif request == "2":
-                    sock.send("Category search not available yet.\n".encode('utf-8'))
+                    elif request == "2":
+                        sock_a.send("Category search not done yet.\n".encode('utf-8'))
 
-                elif request == "3":
-                    sock.send("Country search not available yet.\n".encode('utf-8'))
+                    elif request == "3":
+                        sock_a.send("Country search not done yet.\n".encode('utf-8'))
 
-                elif request == "4":
-                    sock.send("List all headlines not available yet.\n".encode('utf-8'))
+                    elif request == "4":
+                        sock_a.send("List all headlines not done yet.\n".encode('utf-8'))
 
-                elif request == "5":
-                    current_menu = "main"
-                    sock.send(get_main_menu().encode('utf-8'))
+                    elif request == "5":
+                        current_menu = "main"
+                        state = "menu"
+                        sock_a.send(get_main_menu().encode('utf-8'))
 
-                else:
-                    sock.send("Invalid option.\n".encode('utf-8'))
+                    else:
+                        sock_a.send("Invalid option.\n".encode('utf-8'))
+
+                elif state == "keyword_input":
+
+                    kw = request
+
+                    data = fetch_headlines_by_keyword(kw)
+                    articles = data.get("articles", [])
+                    news_list = articles[:15]
+
+                    fname = f"{client_name}_kw_{GROUP_ID}.json"
+                    with open(fname, "w", encoding="utf-8") as f:
+                        json.dump(data, f, ensure_ascii=False, indent=2)
+
+                    if not news_list:
+                        sock_a.send("No results.\n".encode('utf-8'))
+                        state = "menu"
+                        sock_a.send(get_headlines_menu().encode('utf-8'))
+                    else:
+                        lines = []
+                        for i, a in enumerate(news_list):
+                            src = (a.get("source") or {}).get("name", "Unknown")
+                            title = a.get("title") or "No title"
+                            lines.append(f"{i}) {src} | {title}")
+
+                        lines.append("\nEnter number or B:\n")
+                        sock_a.send("\n".join(lines).encode('utf-8'))
+
+                        state = "keyword_select"
+                        
+
 
             # ================= SOURCES MENU =================
             elif current_menu == "sources":

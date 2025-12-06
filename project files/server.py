@@ -126,7 +126,6 @@ def fetch_sources_by_language(lang):
     return r.json()
 
 
-
 def source_details(src):
     name = src.get("name", "Unknown")
     country = src.get("country", "Unknown")

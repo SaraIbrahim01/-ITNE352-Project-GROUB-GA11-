@@ -407,6 +407,12 @@ def handle_client(client_sock, client_addr, client_id):
                         client_sock.sendall(txt.encode("utf-8"))
                         view_state = "src_country_input"
 
+                    elif request == "3":
+                        # Search sources by language
+                        txt = "Enter language (ar, en):\n"
+                        client_sock.sendall(txt.encode("utf-8"))
+                        view_state = "src_language_input"
+
                     elif request == "5":
                         # Back to main menu
                         current_menu = "main"
@@ -414,10 +420,11 @@ def handle_client(client_sock, client_addr, client_id):
                         client_sock.sendall(main_menu_text().encode("utf-8"))
 
                     else:
-                        # باقي الخيارات لسه مو مطبّقة
+                        # باقي الخيارات لسه مو مطبّقة (مثل 4: list all)
                         msg = (
                             "This SOURCES option is not implemented yet.\n"
-                            "Choose 1 (category), 2 (country), or 5 to go back.\n"
+                            "Choose 1 (category), 2 (country), 3 (language), "
+                            "or 5 to go back.\n"
                         )
                         client_sock.sendall(msg.encode("utf-8"))
 
@@ -520,7 +527,56 @@ def handle_client(client_sock, client_addr, client_id):
                                 client_sock.sendall(
                                     "Press B to go back.\n".encode("utf-8")
                                 )
-                                
+
+                # ===== language input for sources =====
+                elif view_state == "src_language_input":
+                    language = request.strip().lower()
+                    print(f"[SOURCES LANGUAGE] user={user_name}, language={language}")
+
+                    response = fetch_sources_by_language(language)
+                    sources = response.get("sources", [])
+                    current_results = sources[:15]
+
+                    file_name = f"{user_name}_sources_language_{GROUP_ID}.json"
+                    with open(file_name, "w", encoding="utf-8") as f:
+                        json.dump(response, f, ensure_ascii=False, indent=2)
+
+                    if not current_results:
+                        client_sock.sendall(
+                            "No sources found for this language.\n".encode("utf-8")
+                        )
+                        view_state = "menu"
+                        client_sock.sendall(sources_menu_text().encode("utf-8"))
+                    else:
+                        lines = []
+                        for i, src in enumerate(current_results):
+                            name = src.get("name", "Unknown")
+                            lines.append(f"{i}) {name}")
+                        lines.append("\nEnter source number OR B to go back:\n")
+                        client_sock.sendall("\n".join(lines).encode("utf-8"))
+                        view_state = "src_language_select"
+
+                elif view_state == "src_language_select":
+                    if request.upper() == "B":
+                        view_state = "menu"
+                        client_sock.sendall(sources_menu_text().encode("utf-8"))
+                    else:
+                        try:
+                            idx = int(request)
+                        except ValueError:
+                            client_sock.sendall(
+                                "Please enter a number or B.\n".encode("utf-8")
+                            )
+                        else:
+                            if idx < 0 or idx >= len(current_results):
+                                client_sock.sendall("Invalid index.\n".encode("utf-8"))
+                            else:
+                                src = current_results[idx]
+                                txt = source_details(src)
+                                client_sock.sendall(txt.encode("utf-8"))
+                                client_sock.sendall(
+                                    "Press B to go back.\n".encode("utf-8")
+                                )
 
     finally:
         client_sock.close()

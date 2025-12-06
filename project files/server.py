@@ -7,6 +7,7 @@ HOST = "0.0.0.0"
 PORT = 5000
 API_KEY = "7e105333ff414544a47e8f0febc01b18"
 HEADLINES_URL = "https://newsapi.org/v2/top-headlines"
+SOURCES_URL = "https://newsapi.org/v2/top-headlines/sources"
 GROUP_ID = "GA11"
 
 
@@ -75,6 +76,7 @@ def get_all_news():
     params = {
         "apiKey": API_KEY,
         "language": "en",
+        "country": "us",
     }
     r = requests.get(HEADLINES_URL, params=params)
     return r.json()
@@ -110,9 +112,9 @@ def handle_client(client_sock, client_addr, client_id):
         client_sock.sendall(welcome_msg.encode("utf-8"))
         client_sock.sendall(main_menu_text().encode("utf-8"))
 
-        current_menu = "main"      # "main", "headlines", "sources"
-        view_state = "menu"        # extra state inside headlines
-        current_results = []       # last list of articles we showed
+        current_menu = "main"      
+        view_state = "menu"
+        current_results = [] 
 
         while True:
             data = client_sock.recv(4096)

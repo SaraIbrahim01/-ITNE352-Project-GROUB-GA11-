@@ -354,7 +354,7 @@ def handle_client(client_sock, client_addr, client_id):
                                 client_sock.sendall(txt.encode("utf-8"))
                                 client_sock.sendall("Press B to go back.\n".encode("utf-8"))
 
-                # ------ all headlines (no filter) ------
+                # ------ all headlines ------
                 elif view_state == "all_select":
                     if request.upper() == "B":
                         view_state = "menu"
@@ -375,13 +375,78 @@ def handle_client(client_sock, client_addr, client_id):
 
             # ================= SOURCES MENU =================
             elif current_menu == "sources":
-                if request == "5":
-                    current_menu = "main"
-                    view_state = "menu"
-                    client_sock.sendall(main_menu_text().encode("utf-8"))
-                else:
-                    msg = "Sources options not implemented yet. Use 5 to go back.\n"
-                    client_sock.sendall(msg.encode("utf-8"))
+                if view_state == "menu":
+                    if request == "1":
+                        # Search sources by category
+                        txt = (
+                            "Enter category (business, general, health, "
+                            "science, sports, technology):\n"
+                        )
+                        client_sock.sendall(txt.encode("utf-8"))
+                        view_state = "src_category_input"
+
+                    elif request == "5":
+                        # Back to main menu
+                        current_menu = "main"
+                        view_state = "menu"
+                        client_sock.sendall(main_menu_text().encode("utf-8"))
+
+                    else:
+                        msg = (
+                            "This SOURCES option is not implemented yet.\n"
+                            "Choose 1 for category or 5 to go back.\n"
+                        )
+                        client_sock.sendall(msg.encode("utf-8"))
+
+                # ===== category input for sources =====
+                elif view_state == "src_category_input":
+                    category = request.strip().lower()
+                    print(f"[SOURCES CATEGORY] user={user_name}, category={category}")
+
+                    response = fetch_sources_by_category(category)
+                    sources = response.get("sources", [])
+                    current_results = sources[:15]
+
+                    file_name = f"{user_name}_sources_category_{GROUP_ID}.json"
+                    with open(file_name, "w", encoding="utf-8") as f:
+                        json.dump(response, f, ensure_ascii=False, indent=2)
+
+                    if not current_results:
+                        client_sock.sendall(
+                            "No sources found for this category.\n".encode("utf-8")
+                        )
+                        view_state = "menu"
+                        client_sock.sendall(sources_menu_text().encode("utf-8"))
+                    else:
+                        lines = []
+                        for i, src in enumerate(current_results):
+                            name = src.get("name", "Unknown")
+                            lines.append(f"{i}) {name}")
+                        lines.append("\nEnter source number OR B to go back:\n")
+                        client_sock.sendall("\n".join(lines).encode("utf-8"))
+                        view_state = "src_category_select"
+
+                elif view_state == "src_category_select":
+                    if request.upper() == "B":
+                        view_state = "menu"
+                        client_sock.sendall(sources_menu_text().encode("utf-8"))
+                    else:
+                        try:
+                            idx = int(request)
+                        except ValueError:
+                            client_sock.sendall(
+                                "Please enter a number or B.\n".encode("utf-8")
+                            )
+                        else:
+                            if idx < 0 or idx >= len(current_results):
+                                client_sock.sendall("Invalid index.\n".encode("utf-8"))
+                            else:
+                                src = current_results[idx]
+                                txt = source_details(src)
+                                client_sock.sendall(txt.encode("utf-8"))
+                                client_sock.sendall(
+                                    "Press B to go back.\n".encode("utf-8")
+                                )
 
     finally:
         client_sock.close()

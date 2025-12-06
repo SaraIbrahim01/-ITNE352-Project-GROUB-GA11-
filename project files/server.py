@@ -101,6 +101,35 @@ def show_article_details(art):
     return text
 
 
+def fetch_sources_by_category(cat):
+    params = {
+        "apiKey": API_KEY,
+        "category": cat,
+    }
+    r = requests.get(SOURCES_URL, params=params)
+    return r.json()
+
+
+def source_details(src):
+    name = src.get("name", "Unknown")
+    country = src.get("country", "Unknown")
+    desc = src.get("description", "No description")
+    url = src.get("url", "No URL")
+    category = src.get("category", "Unknown")
+    language = src.get("language", "Unknown")
+
+    text = (
+        "\nSOURCE DETAILS:\n"
+        f"Name: {name}\n"
+        f"Country: {country}\n"
+        f"Category: {category}\n"
+        f"Language: {language}\n"
+        f"URL: {url}\n"
+        f"Description: {desc}\n\n"
+    )
+    return text
+
+
 def handle_client(client_sock, client_addr, client_id):
     try:
         print(f"\n========== Start of thread id:{client_id} ==========")

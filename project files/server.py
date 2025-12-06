@@ -117,6 +117,14 @@ def fetch_sources_by_country(code):
     r = requests.get(SOURCES_URL, params=params)
     return r.json()
 
+def fetch_sources_by_language(lang):
+    params = {
+        "apiKey": API_KEY,
+        "language": lang,
+    }
+    r = requests.get(SOURCES_URL, params=params)
+    return r.json()
+
 
 
 def source_details(src):
@@ -513,6 +521,7 @@ def handle_client(client_sock, client_addr, client_id):
                                 client_sock.sendall(
                                     "Press B to go back.\n".encode("utf-8")
                                 )
+                                
 
     finally:
         client_sock.close()

@@ -125,6 +125,12 @@ def fetch_sources_by_language(lang):
     r = requests.get(SOURCES_URL, params=params)
     return r.json()
 
+def fetch_all_sources():
+    params = {
+        "apiKey": API_KEY,
+    }
+    r = requests.get(SOURCES_URL, params=params)
+    return r.json()
 
 def source_details(src):
     name = src.get("name", "Unknown")

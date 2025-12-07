@@ -77,6 +77,9 @@ class NewsClientGUI:
        self.sock.close()
        self.sock = None
        return
+    
+    self.build_chat_screen()
+    
        
 
 

@@ -167,6 +167,15 @@ class NewsClientGUI:
        
        self.input_entry.delete(0, tk.END)
       
+ # Graceful exit from the application
+    def quit_client(self):
+       try:
+          if self.sock:
+             self.sock.sendall(b"4\n")
+       except:
+          pass
+       self.root.destroy()
+       
 
 
 

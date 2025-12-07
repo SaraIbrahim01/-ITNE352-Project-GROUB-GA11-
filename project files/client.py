@@ -93,6 +93,18 @@ class NewsClientGUI:
           text=f"Connected as:{self.username}",
           font=("Arial",12,"bold")
        ).pack(pady=5)
+
+ # Scrollable text area to display server messages
+    self.text_area = scrolledtext.ScrolledText(
+       self.root,
+       width=80,
+       height=25,
+       font=("Consolas",11)
+    )
+    self.text_area.pack(padx=10, pady=5)
+    self.text_area.config(state=tk.DISABLED)
+
+    
        
        
        

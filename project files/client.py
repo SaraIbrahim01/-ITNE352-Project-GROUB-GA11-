@@ -50,7 +50,15 @@ class NewsClientGUI:
        command= self.connect_to_server
     ).pack(pady=10)
 
+ # Connect to server and send username
+    def connect_to_server(self):
+       username= self.username_entry.get().strip()
+       if not username:
+          messagebox.showerror("Error", "Please enter a username ")
+          return
+       self.username= username
 
+       
     
 
 

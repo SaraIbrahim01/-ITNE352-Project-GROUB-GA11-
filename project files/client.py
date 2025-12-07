@@ -68,7 +68,15 @@ class NewsClientGUI:
        self.sock=None
        return
     
-    
+    try:
+       
+       self.sock.sendall((self.username + "\n").encode("utf-8"))
+
+    except Exception as e:
+       messagebox.showerror("Send Error", str(e))
+       self.sock.close()
+       self.sock = None
+       return
        
 
 

@@ -132,7 +132,24 @@ class NewsClientGUI:
        self.text_area.insert(tk.END, text)
        self.text_area.see(tk.END)
        self.text_area.config(state=tk.DISABLED)
-       
+
+# Receiving loop (runs in a background thread)
+    def receive_loop(self):
+        if not self.sock:
+         return
+         
+    try:
+          while True:
+             data= self.sock.recv(4096)
+             if not data:
+                self.append_text("\n[Disconnected from server]\n")
+                break
+             self.append_text(data.decode("utf-8"))
+
+    except:
+       self.append_text("\n[Connection error]\n")
+
+             
        
 
 

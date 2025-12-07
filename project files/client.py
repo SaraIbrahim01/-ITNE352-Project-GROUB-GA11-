@@ -82,7 +82,22 @@ class NewsClientGUI:
 
     recv_thread =threading.Thread(target=self.receive_loop, daemon=True)
     recv_thread.start()
+
+ # Main GUI for interacting with server
     
+    def build_chat_screen(self):
+       self.clear_window()
+
+       tk.Label(
+          self.root,
+          text=f"Connected as:{self.username}",
+          font=("Arial",12,"bold")
+       ).pack(pady=5)
+       
+       
+       
+  
+
 
        
 

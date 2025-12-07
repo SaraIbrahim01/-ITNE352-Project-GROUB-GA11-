@@ -58,28 +58,28 @@ class NewsClientGUI:
           return
        self.username= username
 
-    try:
+       try:
        
-       self.sock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-       self.sock.connect((SERVER_HOST, SERVER_PORT))
+           self.sock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+           self.sock.connect((SERVER_HOST, SERVER_PORT))
        
-    except Exception as e:
-       messagebox.showerror("Connection Error", str(e))
-       self.sock=None
-       return
+       except Exception as e:
+        messagebox.showerror("Connection Error", str(e))
+        self.sock=None
+        return
     
-    try:
+       try:
        
-       self.sock.sendall((self.username + "\n").encode("utf-8"))
+           self.sock.sendall((self.username + "\n").encode("utf-8"))
 
-    except Exception as e:
-       messagebox.showerror("Send Error", str(e))
-       self.sock.close()
-       self.sock = None
+       except Exception as e:
+        messagebox.showerror("Send Error", str(e))
+        self.sock.close()
+        self.sock = None
        return
     
     self.build_chat_screen()
-    
+
        
 
 

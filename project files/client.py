@@ -184,8 +184,13 @@ class NewsClientGUI:
           except:
              pass
           self.root.destroy()
-             
+
+ # Program entry point
+    root= tk.Tk()
+    app= NewsClientGUI(root)
+    root.mainloop()
     
+   
 
 
 

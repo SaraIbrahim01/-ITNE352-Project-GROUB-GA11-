@@ -58,7 +58,22 @@ class NewsClientGUI:
           return
        self.username= username
 
+    try:
        
+       self.sock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+       self.sock.connect((SERVER_HOST, SERVER_PORT))
+       
+    except Exception as e:
+       messagebox.showerror("Connection Error", str(e))
+       self.sock=None
+       return
+    
+    
+       
+
+
+
+
     
 
 

@@ -62,26 +62,24 @@ class NewsClientGUI:
        
            self.sock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
            self.sock.connect((SERVER_HOST, SERVER_PORT))
-       
        except Exception as e:
-        messagebox.showerror("Connection Error", str(e))
-        self.sock=None
-        return
+            messagebox.showerror("Connection Error", str(e))
+            self.sock=None
+            return
     
        try:
        
            self.sock.sendall((self.username + "\n").encode("utf-8"))
-
        except Exception as e:
-        messagebox.showerror("Send Error", str(e))
-        self.sock.close()
-        self.sock = None
-       return
+            messagebox.showerror("Send Error", str(e))
+            self.sock.close()
+            self.sock = None
+            return
     
-    self.build_chat_screen()
+       self.build_chat_screen()
 
-    recv_thread =threading.Thread(target=self.receive_loop, daemon=True)
-    recv_thread.start()
+       recv_thread =threading.Thread(target=self.receive_loop, daemon=True)
+       recv_thread.start()
 
  # Main GUI for interacting with server
     
@@ -95,36 +93,36 @@ class NewsClientGUI:
        ).pack(pady=5)
 
  # Scrollable text area to display server messages
-    self.text_area = scrolledtext.ScrolledText(
-       self.root,
-       width=80,
-       height=25,
-       font=("Consolas",11)
+       self.text_area = scrolledtext.ScrolledText(
+         self.root,
+         width=80,
+         height=25,
+         font=("Consolas",11)
     )
-    self.text_area.pack(padx=10, pady=5)
-    self.text_area.config(state=tk.DISABLED)
+       self.text_area.pack(padx=10, pady=5)
+       self.text_area.config(state=tk.DISABLED)
 
-    bottom_frame = tk.Frame(self.root)
-    bottom_frame.pack(pady=5)
+       bottom_frame = tk.Frame(self.root)
+       bottom_frame.pack(pady=5)
 
-    self.input_entry = tk.Entry(bottom_frame, font=("Arial", 12), width=40)
-    self.input_entry.pack(side=tk.LEFT, padx=5)
+       self.input_entry = tk.Entry(bottom_frame, font=("Arial", 12), width=40)
+       self.input_entry.pack(side=tk.LEFT, padx=5)
 
-    tk.Button(
-       bottom_frame,
-       text="Send",
-       font=("Arial", 12),
-       command=self.send_input
-    ).pack(side=tk.LEFT, padx=5)
+       tk.Button(
+          bottom_frame,
+          text="Send",
+          font=("Arial", 12),
+          command=self.send_input
+      ).pack(side=tk.LEFT, padx=5)
 
-    tk.Button(
-       bottom_frame,
-       text="Quit",
-       font=("Arial", 12 ),
-       command=self.quit_client
-    ).pack(side=tk.LEFT, padx=5)
+       tk.Button(
+          bottom_frame,
+          text="Quit",
+          font=("Arial", 12 ),
+          command=self.quit_client
+      ).pack(side=tk.LEFT, padx=5)
 
-    self.root.bind("<Return>", lambda event: self.send_input())
+       self.root.bind("<Return>", lambda event: self.send_input())
 
 # Add text messages from server into the GUI text area
     def append_text(self, text: str):
@@ -136,18 +134,18 @@ class NewsClientGUI:
 # Receiving loop (runs in a background thread)
     def receive_loop(self):
         if not self.sock:
-         return
+          return
          
-    try:
+        try:
           while True:
-             data= self.sock.recv(4096)
-             if not data:
-                self.append_text("\n[Disconnected from server]\n")
-                break
-             self.append_text(data.decode("utf-8"))
+            data= self.sock.recv(4096)
+            if not data:
+              self.append_text("\n[Disconnected from server]\n")
+              break
+            self.append_text(data.decode("utf-8"))
 
-    except:
-       self.append_text("\n[Connection error]\n")
+        except:
+           self.append_text("\n[Connection error]\n")
 
  # Send user input to the server
     def send_input(self):
@@ -186,10 +184,10 @@ class NewsClientGUI:
           self.root.destroy()
 
  # Program entry point
-    root= tk.Tk()
-    app= NewsClientGUI(root)
-    root.mainloop()
-    
+root= tk.Tk()
+app= NewsClientGUI(root)
+root.mainloop()
+
    
 
 

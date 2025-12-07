@@ -22,15 +22,26 @@ class NewsClientGUI:
 
       self.build_login_screen()                   # Create the login page first
 
-       # When the window closes, run cleanup
+ # When the window closes, run cleanup
       self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
-     # Utility: Remove all widgets from the window
+# Utility: Remove all widgets from the window
     def clear_window(self):
        for widget in self.root.winfo_children():
           widget.destroy()
 
-          
+ # Login screen (username + connect button)
+    def build_login_screen(self):
+       self.clear_window()
+
+       tk.Label(
+          self.root, text="Enter your username:", font=("Arial", 14)
+       ).pack(pady=10)
+
+       
+
+
+     
        
 
 

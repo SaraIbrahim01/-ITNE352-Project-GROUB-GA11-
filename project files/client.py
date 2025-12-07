@@ -175,7 +175,18 @@ class NewsClientGUI:
        except:
           pass
        self.root.destroy()
-       
+
+# Cleanup on window close
+    def on_close(self):
+       if self.sock:
+          try:
+             self.sock.close()
+          except:
+             pass
+          self.root.destroy()
+             
+    
+
 
 
 

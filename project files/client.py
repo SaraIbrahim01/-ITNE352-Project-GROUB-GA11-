@@ -125,7 +125,15 @@ class NewsClientGUI:
     ).pack(side=tk.LEFT, padx=5)
 
     self.root.bind("<Return>", lambda event: self.send_input())
-    
+
+# Add text messages from server into the GUI text area
+    def append_text(self, text: str):
+       self.text_area.config(state=tk.NORMAL)
+       self.text_area.insert(tk.END, text)
+       self.text_area.see(tk.END)
+       self.text_area.config(state=tk.DISABLED)
+       
+       
 
 
 

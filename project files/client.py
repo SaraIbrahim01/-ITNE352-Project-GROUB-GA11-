@@ -38,6 +38,9 @@ class NewsClientGUI:
           self.root, text="Enter your username:", font=("Arial", 14)
        ).pack(pady=10)
 
+ # Text field for username 
+       self.username_entry = tk.Entry(self.root, font=("Arial", 14))  
+       self.username_entry.pack(pady=5) 
        
 
 

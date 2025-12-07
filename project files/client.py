@@ -117,7 +117,15 @@ class NewsClientGUI:
        command=self.send_input
     ).pack(side=tk.LEFT, padx=5)
 
+    tk.Button(
+       bottom_frame,
+       text="Quit",
+       font=("Arial", 12 ),
+       command=self.quit_client
+    ).pack(side=tk.LEFT, padx=5)
 
+    self.root.bind("<Return>", lambda event: self.send_input())
+    
 
 
 

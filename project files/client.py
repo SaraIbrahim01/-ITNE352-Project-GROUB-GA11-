@@ -104,7 +104,23 @@ class NewsClientGUI:
     self.text_area.pack(padx=10, pady=5)
     self.text_area.config(state=tk.DISABLED)
 
-    
+    bottom_frame = tk.Frame(self.root)
+    bottom_frame.pack(pady=5)
+
+    self.input_entry = tk.Entry(bottom_frame, font=("Arial", 12), width=40)
+    self.input_entry.pack(side=tk.LEFT, padx=5)
+
+    tk.Button(
+       bottom_frame,
+       text="Send",
+       font=("Arial", 12),
+       command=self.send_input
+    ).pack(side=tk.LEFT, padx=5)
+
+
+
+
+
        
        
        

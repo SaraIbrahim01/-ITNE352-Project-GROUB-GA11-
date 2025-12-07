@@ -80,6 +80,10 @@ class NewsClientGUI:
     
     self.build_chat_screen()
 
+    recv_thread =threading.Thread(target=self.receive_loop, daemon=True)
+    recv_thread.start()
+    
+
        
 
 

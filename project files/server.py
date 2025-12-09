@@ -3,14 +3,19 @@ import threading
 import json
 import requests
 
-HOST = "0.0.0.0"
-PORT = 5000
+# Server settings (IP and Port)
+HOST = "0.0.0.0"      # Listen on all available network interfaces
+PORT = 5000           # Port number for the server
+
+# NewsAPI data (API key and URLs)
 API_KEY = "7e105333ff414544a47e8f0febc01b18"
 HEADLINES_URL = "https://newsapi.org/v2/top-headlines"
 SOURCES_URL = "https://newsapi.org/v2/top-headlines/sources"
-GROUP_ID = "GA11"
+
+GROUP_ID = "GA11"     # My group ID for saving JSON files
 
 
+# Text for the main menu
 def main_menu_text():
     return (
         "MAIN MENU:\n"
@@ -20,6 +25,7 @@ def main_menu_text():
     )
 
 
+# Text for headlines menu
 def headlines_menu_text():
     return (
         "HEADLINES MENU:\n"
@@ -31,6 +37,7 @@ def headlines_menu_text():
     )
 
 
+# Text for sources menu
 def sources_menu_text():
     return (
         "SOURCES MENU:\n"
@@ -42,96 +49,72 @@ def sources_menu_text():
     )
 
 
+# Get headlines using keyword
 def get_news_by_keyword(word):
-    params = {
-        "apiKey": API_KEY,
-        "q": word,
-        "language": "en",
-    }
-    r = requests.get(HEADLINES_URL, params=params)
-    return r.json()
+    params = {"apiKey": API_KEY, "q": word, "language": "en"}
+    return requests.get(HEADLINES_URL, params=params).json()
 
 
+# Get headlines using category
 def get_news_by_category(cat):
-    params = {
-        "apiKey": API_KEY,
-        "category": cat,
-        "language": "en",
-    }
-    r = requests.get(HEADLINES_URL, params=params)
-    return r.json()
+    params = {"apiKey": API_KEY, "category": cat, "language": "en"}
+    return requests.get(HEADLINES_URL, params=params).json()
 
 
+# Get headlines using country
 def get_news_by_country(code):
-    params = {
-        "apiKey": API_KEY,
-        "country": code,
-        "language": "en",
-    }
-    r = requests.get(HEADLINES_URL, params=params)
-    return r.json()
+    params = {"apiKey": API_KEY, "country": code, "language": "en"}
+    return requests.get(HEADLINES_URL, params=params).json()
 
 
+# Get all top headlines
 def get_all_news():
-    params = {
-        "apiKey": API_KEY,
-        "language": "en",
-        "country": "us",
-    }
-    r = requests.get(HEADLINES_URL, params=params)
-    return r.json()
+    params = {"apiKey": API_KEY, "language": "en", "country": "us"}
+    return requests.get(HEADLINES_URL, params=params).json()
 
 
+# Format full article details
 def show_article_details(art):
+    # Extract different fields from article safely
     source = (art.get("source") or {}).get("name", "Unknown")
     author = art.get("author", "Unknown")
     title = art.get("title", "No title")
     url = art.get("url", "No URL")
     desc = art.get("description", "No description")
     published = art.get("publishedAt", "Unknown")
-    text = (
+
+    return (
         "\nARTICLE DETAILS:\n"
-        f"Source: {source}\n"
-        f"Author: {author}\n"
-        f"Title: {title}\n"
-        f"URL: {url}\n"
-        f"Description: {desc}\n"
-        f"Published: {published}\n\n"
+        f"Source: {source}\nAuthor: {author}\nTitle: {title}\nURL: {url}\n"
+        f"Description: {desc}\nPublished: {published}\n\n"
     )
-    return text
 
 
+# Fetch sources by category
 def fetch_sources_by_category(cat):
-    params = {
-        "apiKey": API_KEY,
-        "category": cat,
-    }
-    r = requests.get(SOURCES_URL, params=params)
-    return r.json()
+    params = {"apiKey": API_KEY, "category": cat}
+    return requests.get(SOURCES_URL, params=params).json()
 
+
+# Fetch sources by country
 def fetch_sources_by_country(code):
-    params = {
-        "apiKey": API_KEY,
-        "country": code,
-    }
-    r = requests.get(SOURCES_URL, params=params)
-    return r.json()
+    params = {"apiKey": API_KEY, "country": code}
+    return requests.get(SOURCES_URL, params=params).json()
 
+
+# Fetch sources by language
 def fetch_sources_by_language(lang):
-    params = {
-        "apiKey": API_KEY,
-        "language": lang,
-    }
-    r = requests.get(SOURCES_URL, params=params)
-    return r.json()
+    params = {"apiKey": API_KEY, "language": lang}
+    return requests.get(SOURCES_URL, params=params).json()
 
+
+# Fetch all sources
 def fetch_all_sources():
-    params = {
-        "apiKey": API_KEY,
-    }
-    r = requests.get(SOURCES_URL, params=params)
-    return r.json()
+    params = {"apiKey": API_KEY}
+    return requests.get(SOURCES_URL, params=params).json()
 
+
+# Format full source details
 def source_details(src):
     name = src.get("name", "Unknown")
     country = src.get("country", "Unknown")
@@ -140,531 +123,344 @@ def source_details(src):
     category = src.get("category", "Unknown")
     language = src.get("language", "Unknown")
 
-    text = (
+    return (
         "\nSOURCE DETAILS:\n"
-        f"Name: {name}\n"
-        f"Country: {country}\n"
-        f"Category: {category}\n"
-        f"Language: {language}\n"
-        f"URL: {url}\n"
-        f"Description: {desc}\n\n"
+        f"Name: {name}\nCountry: {country}\nCategory: {category}\n"
+        f"Language: {language}\nURL: {url}\nDescription: {desc}\n\n"
     )
-    return text
 
 
+# Write JSON file for storing API results
+def write_json_file(user, tag, data):
+    # File name follows required format
+    file_name = f"{user}_{tag}_{GROUP_ID}.json"
+
+    # Save JSON data into file
+    with open(file_name, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    return file_name
+
+
+# Create menu list for articles
+def format_articles_menu(results):
+    lines = []
+    # Show article number with source, author, and title
+    for i, art in enumerate(results):
+        src = (art.get("source") or {}).get("name", "Unknown")
+        author = art.get("author", "Unknown")
+        title = art.get("title", "No title")
+        lines.append(f"{i}) {src} | {author} | {title}")
+    lines.append("\nEnter article number OR B to go back:\n")
+    return "\n".join(lines)
+
+
+# Create menu list for sources
+def format_sources_menu(results):
+    lines = []
+    for i, src in enumerate(results):
+        name = src.get("name", "Unknown")
+        lines.append(f"{i}) {name}")
+    lines.append("\nEnter source number OR B to go back:\n")
+    return "\n".join(lines)
+
+
+# Show full article details when user chooses index
+def show_article_by_index(req, results, client):
+    try:
+        idx = int(req)   # Convert input to number
+    except:
+        client.sendall("Please enter a number or B.\n".encode("utf-8"))
+        return
+
+    # Check if index is valid
+    if idx < 0 or idx >= len(results):
+        client.sendall("Invalid index.\n".encode("utf-8"))
+        return
+
+    art = results[idx]
+    client.sendall(show_article_details(art).encode("utf-8"))
+    client.sendall("Press B to go back.\n".encode("utf-8"))
+
+
+# Show full source details when user chooses index
+def show_source_by_index(req, results, client):
+    try:
+        idx = int(req)
+    except:
+        client.sendall("Please enter a number or B.\n".encode("utf-8"))
+        return
+
+    if idx < 0 or idx >= len(results):
+        client.sendall("Invalid index.\n".encode("utf-8"))
+        return
+
+    src = results[idx]
+    client.sendall(source_details(src).encode("utf-8"))
+    client.sendall("Press B to go back.\n".encode("utf-8"))
+
+
+# Main function for handling each client connection
 def handle_client(client_sock, client_addr, client_id):
     try:
         print(f"\n========== Start of thread id:{client_id} ==========")
 
+        # Receive username from client
         user_name = client_sock.recv(4096).decode("utf-8").strip()
-        print(f">>> New client: {user_name} ({client_addr[0]}:{client_addr[1]})")
+        print(f">>> New client: {user_name}")
 
-        welcome_msg = f"Welcome {user_name}! You are connected to the news server.\n"
-        client_sock.sendall(welcome_msg.encode("utf-8"))
-        client_sock.sendall(main_menu_text().encode("utf-8"))
+        # Send welcome message and main menu
+        client_sock.sendall(f"Welcome {user_name}! You are connected.\n".encode())
+        client_sock.sendall(main_menu_text().encode())
 
-        current_menu = "main"      
-        view_state = "menu"
-        current_results = [] 
+        current_menu = "main"        # Track which menu we are in
+        view_state = "menu"          # Track what we expect next
+        current_results = []         # Store latest API results
 
         while True:
+            # Receive data from client
             data = client_sock.recv(4096)
             if not data:
-                print(f"<<< {user_name} disconnected (no data)")
+                print(f"<<< {user_name} disconnected")
                 break
 
-            request = data.decode("utf-8").strip()
-            print(f"[REQUEST] from {user_name}: {request}")
+            request = data.decode().strip()
+            print(f"[REQUEST] {user_name}: {request}")
 
-            # ================= MAIN MENU =================
+            # ---------------- MAIN MENU ----------------
             if current_menu == "main":
+
                 if request == "1":
                     current_menu = "headlines"
                     view_state = "menu"
-                    client_sock.sendall(headlines_menu_text().encode("utf-8"))
+                    client_sock.sendall(headlines_menu_text().encode())
 
                 elif request == "2":
                     current_menu = "sources"
                     view_state = "menu"
-                    client_sock.sendall(sources_menu_text().encode("utf-8"))
+                    client_sock.sendall(sources_menu_text().encode())
 
                 elif request == "3" or request.lower() == "quit":
-                    print(f"[DISCONNECTED] {user_name} chose quit.")
+                    print(f"[DISCONNECTED] {user_name} quit.")
                     break
 
                 else:
-                    msg = "Invalid option in MAIN MENU. Please choose 1, 2, or 3.\n"
-                    client_sock.sendall(msg.encode("utf-8"))
+                    client_sock.sendall("Invalid option.\n".encode())
 
-            # ================= HEADLINES MENU =================
+
+            # ---------------- HEADLINES MENU ----------------
             elif current_menu == "headlines":
+
                 if view_state == "menu":
+
                     if request == "1":
-                        client_sock.sendall("Enter keyword:\n".encode("utf-8"))
+                        client_sock.sendall("Enter keyword:\n".encode())
                         view_state = "keyword_input"
 
                     elif request == "2":
-                        txt = (
-                            "Enter category (business, general, health, "
-                            "science, sports, technology):\n"
-                        )
-                        client_sock.sendall(txt.encode("utf-8"))
+                        client_sock.sendall("Enter category:\n".encode())
                         view_state = "category_input"
 
                     elif request == "3":
-                        txt = "Enter country code (au, ca, jp, ae, sa, kr, us, ma):\n"
-                        client_sock.sendall(txt.encode("utf-8"))
+                        client_sock.sendall("Enter country code:\n".encode())
                         view_state = "country_input"
 
                     elif request == "4":
-                        # list all headlines
+                        # Get all headlines
                         response = get_all_news()
                         articles = response.get("articles", [])
-                        current_results = articles[:15]
+                        current_results = articles[:15]   # Limit results
 
-                        file_name = f"{user_name}_headlines_all_{GROUP_ID}.json"
-                        with open(file_name, "w", encoding="utf-8") as f:
-                            json.dump(response, f, ensure_ascii=False, indent=2)
+                        write_json_file(user_name, "headlines_all", response)
 
                         if not current_results:
-                            client_sock.sendall("No headlines available.\n".encode("utf-8"))
-                            client_sock.sendall(headlines_menu_text().encode("utf-8"))
+                            client_sock.sendall("No headlines available.\n".encode())
+                            client_sock.sendall(headlines_menu_text().encode())
                         else:
-                            lines = []
-                            for i, art in enumerate(current_results):
-                                src = (art.get("source") or {}).get("name", "Unknown")
-                                title = art.get("title", "No title")
-                                lines.append(f"{i}) {src} | {title}")
-                            lines.append("\nEnter article number OR B to go back:\n")
-                            client_sock.sendall("\n".join(lines).encode("utf-8"))
+                            client_sock.sendall(format_articles_menu(current_results).encode())
                             view_state = "all_select"
-
-                    elif request == "5":
-                        current_menu = "main"
-                        view_state = "menu"
-                        client_sock.sendall(main_menu_text().encode("utf-8"))
-
-                    else:
-                        client_sock.sendall("Invalid option.\n".encode("utf-8"))
-
-                # ------ keyword search ------
-                elif view_state == "keyword_input":
-                    keyword = request
-                    response = get_news_by_keyword(keyword)
-                    articles = response.get("articles", [])
-                    current_results = articles[:15]
-
-                    file_name = f"{user_name}_keyword_{GROUP_ID}.json"
-                    with open(file_name, "w", encoding="utf-8") as f:
-                        json.dump(response, f, ensure_ascii=False, indent=2)
-
-                    if not current_results:
-                        client_sock.sendall("No results found.\n".encode("utf-8"))
-                        view_state = "menu"
-                        client_sock.sendall(headlines_menu_text().encode("utf-8"))
-                    else:
-                        lines = []
-                        for i, art in enumerate(current_results):
-                            src = (art.get("source") or {}).get("name", "Unknown")
-                            title = art.get("title", "No title")
-                            lines.append(f"{i}) {src} | {title}")
-                        lines.append("\nEnter article number OR B to go back:\n")
-                        client_sock.sendall("\n".join(lines).encode("utf-8"))
-                        view_state = "keyword_select"
-
-                elif view_state == "keyword_select":
-                    if request.upper() == "B":
-                        view_state = "menu"
-                        client_sock.sendall(headlines_menu_text().encode("utf-8"))
-                    else:
-                        try:
-                            idx = int(request)
-                        except ValueError:
-                            client_sock.sendall("Please enter a number or B.\n".encode("utf-8"))
-                        else:
-                            if idx < 0 or idx >= len(current_results):
-                                client_sock.sendall("Invalid index.\n".encode("utf-8"))
-                            else:
-                                art = current_results[idx]
-                                txt = show_article_details(art)
-                                client_sock.sendall(txt.encode("utf-8"))
-                                client_sock.sendall("Press B to go back.\n".encode("utf-8"))
-
-                # ------ category search ------
-                elif view_state == "category_input":
-                    category = request.strip().lower()
-                    response = get_news_by_category(category)
-                    articles = response.get("articles", [])
-                    current_results = articles[:15]
-
-                    file_name = f"{user_name}_headlines_category_{GROUP_ID}.json"
-                    with open(file_name, "w", encoding="utf-8") as f:
-                        json.dump(response, f, ensure_ascii=False, indent=2)
-
-                    if not current_results:
-                        client_sock.sendall("No results found for this category.\n".encode("utf-8"))
-                        view_state = "menu"
-                        client_sock.sendall(headlines_menu_text().encode("utf-8"))
-                    else:
-                        lines = []
-                        for i, art in enumerate(current_results):
-                            src = (art.get("source") or {}).get("name", "Unknown")
-                            title = art.get("title", "No title")
-                            lines.append(f"{i}) {src} | {title}")
-                        lines.append("\nEnter article number OR B to go back:\n")
-                        client_sock.sendall("\n".join(lines).encode("utf-8"))
-                        view_state = "category_select"
-
-                elif view_state == "category_select":
-                    if request.upper() == "B":
-                        view_state = "menu"
-                        client_sock.sendall(headlines_menu_text().encode("utf-8"))
-                    else:
-                        try:
-                            idx = int(request)
-                        except ValueError:
-                            client_sock.sendall("Please enter a number or B.\n".encode("utf-8"))
-                        else:
-                            if idx < 0 or idx >= len(current_results):
-                                client_sock.sendall("Invalid index.\n".encode("utf-8"))
-                            else:
-                                art = current_results[idx]
-                                txt = show_article_details(art)
-                                client_sock.sendall(txt.encode("utf-8"))
-                                client_sock.sendall("Press B to go back.\n".encode("utf-8"))
-
-                # ------ country search ------
-                elif view_state == "country_input":
-                    country = request.strip().lower()
-                    response = get_news_by_country(country)
-                    articles = response.get("articles", [])
-                    current_results = articles[:15]
-
-                    file_name = f"{user_name}_headlines_country_{GROUP_ID}.json"
-                    with open(file_name, "w", encoding="utf-8") as f:
-                        json.dump(response, f, ensure_ascii=False, indent=2)
-
-                    if not current_results:
-                        client_sock.sendall("No results found for this country.\n".encode("utf-8"))
-                        view_state = "menu"
-                        client_sock.sendall(headlines_menu_text().encode("utf-8"))
-                    else:
-                        lines = []
-                        for i, art in enumerate(current_results):
-                            src = (art.get("source") or {}).get("name", "Unknown")
-                            title = art.get("title", "No title")
-                            lines.append(f"{i}) {src} | {title}")
-                        lines.append("\nEnter article number OR B to go back:\n")
-                        client_sock.sendall("\n".join(lines).encode("utf-8"))
-                        view_state = "country_select"
-
-                elif view_state == "country_select":
-                    if request.upper() == "B":
-                        view_state = "menu"
-                        client_sock.sendall(headlines_menu_text().encode("utf-8"))
-                    else:
-                        try:
-                            idx = int(request)
-                        except ValueError:
-                            client_sock.sendall("Please enter a number or B.\n".encode("utf-8"))
-                        else:
-                            if idx < 0 or idx >= len(current_results):
-                                client_sock.sendall("Invalid index.\n".encode("utf-8"))
-                            else:
-                                art = current_results[idx]
-                                txt = show_article_details(art)
-                                client_sock.sendall(txt.encode("utf-8"))
-                                client_sock.sendall("Press B to go back.\n".encode("utf-8"))
-
-                # ------ all headlines ------
-                elif view_state == "all_select":
-                    if request.upper() == "B":
-                        view_state = "menu"
-                        client_sock.sendall(headlines_menu_text().encode("utf-8"))
-                    else:
-                        try:
-                            idx = int(request)
-                        except ValueError:
-                            client_sock.sendall("Please enter a number or B.\n".encode("utf-8"))
-                        else:
-                            if idx < 0 or idx >= len(current_results):
-                                client_sock.sendall("Invalid index.\n".encode("utf-8"))
-                            else:
-                                art = current_results[idx]
-                                txt = show_article_details(art)
-                                client_sock.sendall(txt.encode("utf-8"))
-                                client_sock.sendall("Press B to go back.\n".encode("utf-8"))
-
-            # ================= SOURCES MENU =================
-            elif current_menu == "sources":
-                if view_state == "menu":
-                    if request == "1":
-                        # Search sources by category
-                        txt = (
-                            "Enter category (business, general, health, "
-                            "science, sports, technology):\n"
-                        )
-                        client_sock.sendall(txt.encode("utf-8"))
-                        view_state = "src_category_input"
-
-                    elif request == "2":
-                        # Search sources by country
-                        txt = "Enter country code (au, ca, jp, ae, sa, kr, us, ma):\n"
-                        client_sock.sendall(txt.encode("utf-8"))
-                        view_state = "src_country_input"
-
-                    elif request == "3":
-                        # Search sources by language
-                        txt = "Enter language (ar, en):\n"
-                        client_sock.sendall(txt.encode("utf-8"))
-                        view_state = "src_language_input"
-
-                    elif request == "4":
-                        # List all sources (no filter)
-                        print(f"[SOURCES ALL] user={user_name}")
-                        response = fetch_all_sources()
-                        sources = response.get("sources", [])
-                        current_results = sources[:15]
-
-                        file_name = f"{user_name}_sources_all_{GROUP_ID}.json"
-                        with open(file_name, "w", encoding="utf-8") as f:
-                            json.dump(response, f, ensure_ascii=False, indent=2)
-
-                        if not current_results:
-                            client_sock.sendall(
-                                "No sources available.\n".encode("utf-8")
-                            )
-                            view_state = "menu"
-                            client_sock.sendall(sources_menu_text().encode("utf-8"))
-                        else:
-                            lines = []
-                            for i, src in enumerate(current_results):
-                                name = src.get("name", "Unknown")
-                                lines.append(f"{i}) {name}")
-                            lines.append("\nEnter source number OR B to go back:\n")
-                            client_sock.sendall("\n".join(lines).encode("utf-8"))
-                            view_state = "src_all_select"
 
                     elif request == "5":
                         # Back to main menu
                         current_menu = "main"
                         view_state = "menu"
-                        client_sock.sendall(main_menu_text().encode("utf-8"))
+                        client_sock.sendall(main_menu_text().encode())
 
-                    else:
-                        # خيارات أخرى غير معرّفة
-                        msg = (
-                            "This SOURCES option is not implemented.\n"
-                            "Choose 1 (category), 2 (country), 3 (language), "
-                            "4 (list all), or 5 to go back.\n"
-                        )
-                        client_sock.sendall(msg.encode("utf-8"))
 
-                # ===== category input for sources =====
-                elif view_state == "src_category_input":
-                    category = request.strip().lower()
-                    print(f"[SOURCES CATEGORY] user={user_name}, category={category}")
+                elif view_state == "keyword_input":
+                    response = get_news_by_keyword(request)
+                    current_results = response.get("articles", [])[:15]
 
-                    response = fetch_sources_by_category(category)
-                    sources = response.get("sources", [])
-                    current_results = sources[:15]
-
-                    file_name = f"{user_name}_sources_category_{GROUP_ID}.json"
-                    with open(file_name, "w", encoding="utf-8") as f:
-                        json.dump(response, f, ensure_ascii=False, indent=2)
+                    write_json_file(user_name, "headlines_keyword", response)
 
                     if not current_results:
-                        client_sock.sendall(
-                            "No sources found for this category.\n".encode("utf-8")
-                        )
+                        client_sock.sendall("No results.\n".encode())
+                        client_sock.sendall(headlines_menu_text().encode())
                         view_state = "menu"
-                        client_sock.sendall(sources_menu_text().encode("utf-8"))
                     else:
-                        lines = []
-                        for i, src in enumerate(current_results):
-                            name = src.get("name", "Unknown")
-                            lines.append(f"{i}) {name}")
-                        lines.append("\nEnter source number OR B to go back:\n")
-                        client_sock.sendall("\n".join(lines).encode("utf-8"))
+                        client_sock.sendall(format_articles_menu(current_results).encode())
+                        view_state = "keyword_select"
+
+
+                elif view_state == "category_input":
+                    response = get_news_by_category(request)
+                    current_results = response.get("articles", [])[:15]
+
+                    write_json_file(user_name, "headlines_category", response)
+
+                    if not current_results:
+                        client_sock.sendall("No results.\n".encode())
+                        view_state = "menu"
+                        client_sock.sendall(headlines_menu_text().encode())
+                    else:
+                        client_sock.sendall(format_articles_menu(current_results).encode())
+                        view_state = "category_select"
+
+
+                elif view_state == "country_input":
+                    response = get_news_by_country(request)
+                    current_results = response.get("articles", [])[:15]
+
+                    write_json_file(user_name, "headlines_country", response)
+
+                    if not current_results:
+                        client_sock.sendall("No results.\n".encode())
+                        client_sock.sendall(headlines_menu_text().encode())
+                        view_state = "menu"
+                    else:
+                        client_sock.sendall(format_articles_menu(current_results).encode())
+                        view_state = "country_select"
+
+
+                elif view_state in ["keyword_select", "category_select", "country_select", "all_select"]:
+                    if request.upper() == "B":
+                        view_state = "menu"
+                        client_sock.sendall(headlines_menu_text().encode())
+                    else:
+                        show_article_by_index(request, current_results, client_sock)
+
+
+            # ---------------- SOURCES MENU ----------------
+            elif current_menu == "sources":
+
+                if view_state == "menu":
+
+                    if request == "1":
+                        client_sock.sendall("Enter category:\n".encode())
+                        view_state = "src_category_input"
+
+                    elif request == "2":
+                        client_sock.sendall("Enter country code:\n".encode())
+                        view_state = "src_country_input"
+
+                    elif request == "3":
+                        client_sock.sendall("Enter language:\n".encode())
+                        view_state = "src_language_input"
+
+                    elif request == "4":
+                        response = fetch_all_sources()
+                        sources = response.get("sources", [])
+                        current_results = sources[:15]
+
+                        write_json_file(user_name, "sources_all", response)
+
+                        if not current_results:
+                            client_sock.sendall("No sources.\n".encode())
+                            client_sock.sendall(sources_menu_text().encode())
+                        else:
+                            client_sock.sendall(format_sources_menu(current_results).encode())
+                            view_state = "src_all_select"
+
+                    elif request == "5":
+                        # Return to main menu
+                        current_menu = "main"
+                        view_state = "menu"
+                        client_sock.sendall(main_menu_text().encode())
+
+
+                elif view_state == "src_category_input":
+                    response = fetch_sources_by_category(request)
+                    current_results = response.get("sources", [])[:15]
+
+                    write_json_file(user_name, "sources_category", response)
+
+                    if not current_results:
+                        client_sock.sendall("No results.\n".encode())
+                        client_sock.sendall(sources_menu_text().encode())
+                        view_state = "menu"
+                    else:
+                        client_sock.sendall(format_sources_menu(current_results).encode())
                         view_state = "src_category_select"
 
-                elif view_state == "src_category_select":
-                    if request.upper() == "B":
-                        view_state = "menu"
-                        client_sock.sendall(sources_menu_text().encode("utf-8"))
-                    else:
-                        try:
-                            idx = int(request)
-                        except ValueError:
-                            client_sock.sendall(
-                                "Please enter a number or B.\n".encode("utf-8")
-                            )
-                        else:
-                            if idx < 0 or idx >= len(current_results):
-                                client_sock.sendall("Invalid index.\n".encode("utf-8"))
-                            else:
-                                src = current_results[idx]
-                                txt = source_details(src)
-                                client_sock.sendall(txt.encode("utf-8"))
-                                client_sock.sendall(
-                                    "Press B to go back.\n".encode("utf-8")
-                                )
 
-                # ===== country input for sources =====
                 elif view_state == "src_country_input":
-                    country = request.strip().lower()
-                    print(f"[SOURCES COUNTRY] user={user_name}, country={country}")
+                    response = fetch_sources_by_country(request)
+                    current_results = response.get("sources", [])[:15]
 
-                    response = fetch_sources_by_country(country)
-                    sources = response.get("sources", [])
-                    current_results = sources[:15]
-
-                    file_name = f"{user_name}_sources_country_{GROUP_ID}.json"
-                    with open(file_name, "w", encoding="utf-8") as f:
-                        json.dump(response, f, ensure_ascii=False, indent=2)
+                    write_json_file(user_name, "sources_country", response)
 
                     if not current_results:
-                        client_sock.sendall(
-                            "No sources found for this country.\n".encode("utf-8")
-                        )
+                        client_sock.sendall("No results.\n".encode())
+                        client_sock.sendall(sources_menu_text().encode())
                         view_state = "menu"
-                        client_sock.sendall(sources_menu_text().encode("utf-8"))
                     else:
-                        lines = []
-                        for i, src in enumerate(current_results):
-                            name = src.get("name", "Unknown")
-                            lines.append(f"{i}) {name}")
-                        lines.append("\nEnter source number OR B to go back:\n")
-                        client_sock.sendall("\n".join(lines).encode("utf-8"))
+                        client_sock.sendall(format_sources_menu(current_results).encode())
                         view_state = "src_country_select"
 
-                elif view_state == "src_country_select":
-                    if request.upper() == "B":
-                        view_state = "menu"
-                        client_sock.sendall(sources_menu_text().encode("utf-8"))
-                    else:
-                        try:
-                            idx = int(request)
-                        except ValueError:
-                            client_sock.sendall(
-                                "Please enter a number or B.\n".encode("utf-8")
-                            )
-                        else:
-                            if idx < 0 or idx >= len(current_results):
-                                client_sock.sendall("Invalid index.\n".encode("utf-8"))
-                            else:
-                                src = current_results[idx]
-                                txt = source_details(src)
-                                client_sock.sendall(txt.encode("utf-8"))
-                                client_sock.sendall(
-                                    "Press B to go back.\n".encode("utf-8")
-                                )
 
-                # ===== language input for sources =====
                 elif view_state == "src_language_input":
-                    language = request.strip().lower()
-                    print(f"[SOURCES LANGUAGE] user={user_name}, language={language}")
+                    response = fetch_sources_by_language(request)
+                    current_results = response.get("sources", [])[:15]
 
-                    response = fetch_sources_by_language(language)
-                    sources = response.get("sources", [])
-                    current_results = sources[:15]
-
-                    file_name = f"{user_name}_sources_language_{GROUP_ID}.json"
-                    with open(file_name, "w", encoding="utf-8") as f:
-                        json.dump(response, f, ensure_ascii=False, indent=2)
+                    write_json_file(user_name, "sources_language", response)
 
                     if not current_results:
-                        client_sock.sendall(
-                            "No sources found for this language.\n".encode("utf-8")
-                        )
+                        client_sock.sendall("No results.\n".encode())
+                        client_sock.sendall(sources_menu_text().encode())
                         view_state = "menu"
-                        client_sock.sendall(sources_menu_text().encode("utf-8"))
                     else:
-                        lines = []
-                        for i, src in enumerate(current_results):
-                            name = src.get("name", "Unknown")
-                            lines.append(f"{i}) {name}")
-                        lines.append("\nEnter source number OR B to go back:\n")
-                        client_sock.sendall("\n".join(lines).encode("utf-8"))
+                        client_sock.sendall(format_sources_menu(current_results).encode())
                         view_state = "src_language_select"
 
-                elif view_state == "src_language_select":
-                    if request.upper() == "B":
-                        view_state = "menu"
-                        client_sock.sendall(sources_menu_text().encode("utf-8"))
-                    else:
-                        try:
-                            idx = int(request)
-                        except ValueError:
-                            client_sock.sendall(
-                                "Please enter a number or B.\n".encode("utf-8")
-                            )
-                        else:
-                            if idx < 0 or idx >= len(current_results):
-                                client_sock.sendall("Invalid index.\n".encode("utf-8"))
-                            else:
-                                src = current_results[idx]
-                                txt = source_details(src)
-                                client_sock.sendall(txt.encode("utf-8"))
-                                client_sock.sendall(
-                                    "Press B to go back.\n".encode("utf-8")
-                                )
 
-                # ===== list-all selection for sources =====
-                elif view_state == "src_all_select":
+                elif view_state in ["src_category_select", "src_country_select", "src_language_select", "src_all_select"]:
                     if request.upper() == "B":
                         view_state = "menu"
-                        client_sock.sendall(sources_menu_text().encode("utf-8"))
+                        client_sock.sendall(sources_menu_text().encode())
                     else:
-                        try:
-                            idx = int(request)
-                        except ValueError:
-                            client_sock.sendall(
-                                "Please enter a number or B.\n".encode("utf-8")
-                            )
-                        else:
-                            if idx < 0 or idx >= len(current_results):
-                                client_sock.sendall("Invalid index.\n".encode("utf-8"))
-                            else:
-                                src = current_results[idx]
-                                txt = source_details(src)
-                                client_sock.sendall(txt.encode("utf-8"))
-                                client_sock.sendall(
-                                    "Press B to go back.\n".encode("utf-8")
-                                )
+                        show_source_by_index(request, current_results, client_sock)
+
+
     finally:
+        # Close client socket when done
         client_sock.close()
         print(f"========== End of thread id:{client_id} ==========")
 
 
+# Function to start the server
 def start_server():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((HOST, PORT))
-        s.listen(3)
+        s.bind((HOST, PORT))     # Bind server socket
+        s.listen(3)              # Accept up to 3 pending connections
         print(f"[SERVER STARTED] Listening on {HOST}:{PORT}")
 
-        client_threads = []
-        while True:
-            client_sock, client_addr = s.accept()
-            print(f"[ACCEPTED] Connection from {client_addr}")
+        threads = []             # Store threads for clients
 
-            t = threading.Thread(
-                target=handle_client,
-                args=(client_sock, client_addr, len(client_threads) + 1)
-            )
-            client_threads.append(t)
+        while True:
+            # Accept new client
+            client_sock, client_addr = s.accept()
+            print(f"[ACCEPTED] {client_addr}")
+
+            # Create thread for each client
+            t = threading.Thread(target=handle_client,
+                                 args=(client_sock, client_addr, len(threads) + 1))
+            threads.append(t)
             t.start()
 
 
+# Run the server
 if __name__ == "__main__":
     start_server()
-
-
-
-
-
-
-
 
 
 

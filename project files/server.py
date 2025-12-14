@@ -1,61 +1,76 @@
+# --- Imports (stuff we need for sockets, threads, json files, and API calls) ---
 import socket
 import threading
 import json
 import requests
+
+# --- Server settings (where the server runs) ---
 HOST = "0.0.0.0"
 PORT = 5000
 
+# --- NewsAPI settings (key + URLs) ---
 API_KEY = "7e105333ff414544a47e8f0febc01b18"
 HEADLINES_URL = "https://newsapi.org/v2/top-headlines"
 SOURCES_URL = "https://newsapi.org/v2/top-headlines/sources"
 
+# --- Group ID (used in file names) ---
 GROUP_ID = "GA11"
 
+# --- Allowed inputs (so user doesn't enter random values) ---
 ALLOWED_COUNTRIES = {"au", "ca", "jp", "ae", "sa", "kr", "us", "ma"}
 ALLOWED_LANGUAGES = {"ar", "en"}
 ALLOWED_CATEGORIES = {"business", "general", "health", "science", "sports", "technology"}
 
 
+# --- Get news by keyword (search word) ---
 def get_news_by_keyword(word):
     params = {"apiKey": API_KEY, "q": word, "language": "en"}
     return requests.get(HEADLINES_URL, params=params, timeout=15).json()
 
 
+# --- Get news by category (like sports, business, etc.) ---
 def get_news_by_category(cat):
     params = {"apiKey": API_KEY, "category": cat, "language": "en"}
     return requests.get(HEADLINES_URL, params=params, timeout=15).json()
 
 
+# --- Get news by country code (like us, ae, sa...) ---
 def get_news_by_country(code):
     params = {"apiKey": API_KEY, "country": code}
     return requests.get(HEADLINES_URL, params=params, timeout=15).json()
 
 
+# --- Get default news (here it is set to US) ---
 def get_all_news():
     params = {"apiKey": API_KEY, "country": "us"}
     return requests.get(HEADLINES_URL, params=params, timeout=15).json()
 
 
+# --- Get sources by category ---
 def fetch_sources_by_category(cat):
     params = {"apiKey": API_KEY, "category": cat}
     return requests.get(SOURCES_URL, params=params, timeout=15).json()
 
 
+# --- Get sources by country ---
 def fetch_sources_by_country(code):
     params = {"apiKey": API_KEY, "country": code}
     return requests.get(SOURCES_URL, params=params, timeout=15).json()
 
 
+# --- Get sources by language ---
 def fetch_sources_by_language(lang):
     params = {"apiKey": API_KEY, "language": lang}
     return requests.get(SOURCES_URL, params=params, timeout=15).json()
 
 
+# --- Get all sources  ---
 def fetch_all_sources():
     params = {"apiKey": API_KEY}
     return requests.get(SOURCES_URL, params=params, timeout=15).json()
 
 
+# --- Send data safely to the client (so server doesn't crash if client leaves) ---
 def safe_send(client_sock, text: str) -> bool:
     """Send text safely. Return False if client disconnected."""
     try:
@@ -65,6 +80,7 @@ def safe_send(client_sock, text: str) -> bool:
         return False
 
 
+# --- Save the API response into a JSON file (for project requirement) ---
 def write_json_file(user, option_tag, data):
     file_name = f"{user}_{option_tag}_{GROUP_ID}.json"
     with open(file_name, "w", encoding="utf-8") as f:
@@ -72,6 +88,7 @@ def write_json_file(user, option_tag, data):
     return file_name
 
 
+# --- Check if API returned an error and show it to client ---
 def send_api_error_if_any(resp, client_sock):
     if not isinstance(resp, dict):
         safe_send(client_sock, "API Error: Invalid response.\n")
@@ -82,6 +99,7 @@ def send_api_error_if_any(resp, client_sock):
     return False
 
 
+# --- Split publishedAt into date + time (because API returns it combined) ---
 def split_publish_datetime(published_at: str):
     if not published_at:
         return "Unknown", "Unknown"
@@ -91,6 +109,7 @@ def split_publish_datetime(published_at: str):
     return published_at, "Unknown"
 
 
+# --- Build a nice formatted text for one article details ---
 def show_article_details(art):
     source = (art.get("source") or {}).get("name", "Unknown")
     author = art.get("author") or "Unknown"
@@ -113,6 +132,7 @@ def show_article_details(art):
     )
 
 
+# --- Build a nice formatted text for one source details ---
 def source_details(src):
     name = src.get("name", "Unknown")
     country = src.get("country", "Unknown")
@@ -132,6 +152,7 @@ def source_details(src):
     )
 
 
+# --- Make a list view for articles (index + basic info) ---
 def format_articles_list(results):
     lines = []
     for i, art in enumerate(results):
@@ -142,6 +163,7 @@ def format_articles_list(results):
     return "\n".join(lines) + "\n"
 
 
+# --- Make a list view for sources (index + name only) ---
 def format_sources_list(results):
     lines = []
     for i, src in enumerate(results):
@@ -150,6 +172,7 @@ def format_sources_list(results):
     return "\n".join(lines) + "\n"
 
 
+# --- Show one article when user chooses an index ---
 def show_article_by_index(req, results, client_sock):
     try:
         idx = int(req)
@@ -166,6 +189,7 @@ def show_article_by_index(req, results, client_sock):
     safe_send(client_sock, format_articles_list(results))
 
 
+# --- Show one source when user chooses an index ---
 def show_source_by_index(req, results, client_sock):
     try:
         idx = int(req)
@@ -182,27 +206,35 @@ def show_source_by_index(req, results, client_sock):
     safe_send(client_sock, format_sources_list(results))
 
 
+# --- This function handles ONE client (runs in a separate thread) ---
 def handle_client(client_sock, client_addr, client_id):
     user_name = "Unknown"
     try:
+        # Print start of thread (just for server console)
         print(f"\n========== Start of thread id:{client_id} ==========")
 
+        # Make reading from socket easier (like reading lines)
         rfile = client_sock.makefile("r", encoding="utf-8", newline="\n")
 
+        # First thing client sends is their username
         user_name = (rfile.readline() or "").strip()
         if not user_name:
             user_name = f"Client{client_id}"
 
+        # Log client name on the server side
         print(f">>> New client: {user_name}")
 
+        # Welcome message to the client
         if not safe_send(client_sock, f"Welcome {user_name}! Connected.\n"):
             return
 
+        # Variables to control menus and what user is viewing
         current_menu = "main"
         view_state = "menu"
         current_results = []
         pending_option_tag = None
 
+        # Main loop: keep reading user input until disconnect/quit
         while True:
             line = rfile.readline()
             if not line:
@@ -213,8 +245,10 @@ def handle_client(client_sock, client_addr, client_id):
             if not request:
                 continue
 
+            # Debug print to see what user typed and where they are in menu
             print(f"[REQUEST] requester={user_name} menu={current_menu} state={view_state} input={request}")
 
+            # --- Main menu (choose headlines, sources, or quit) ---
             if current_menu == "main":
                 if request == "1":
                     current_menu = "headlines"
@@ -229,6 +263,7 @@ def handle_client(client_sock, client_addr, client_id):
                     if not safe_send(client_sock, "Invalid option.\n"):
                         break
 
+            # --- Headlines menu logic (get articles in different ways) ---
             elif current_menu == "headlines":
                 if view_state == "menu":
                     if request == "1":
@@ -249,6 +284,7 @@ def handle_client(client_sock, client_addr, client_id):
                             view_state = "menu"
                             continue
 
+                        # Limit results to 15 so it doesn't spam
                         current_results = resp.get("articles", [])[:15]
                         if not current_results:
                             if not safe_send(client_sock, "No headlines available.\n"):
@@ -265,6 +301,7 @@ def handle_client(client_sock, client_addr, client_id):
                         if not safe_send(client_sock, "Invalid option.\n"):
                             break
 
+                # --- Keyword input state (user types a word) ---
                 elif view_state == "keyword_input":
                     resp = get_news_by_keyword(request)
                     write_json_file(user_name, pending_option_tag or "1.1", resp)
@@ -283,6 +320,7 @@ def handle_client(client_sock, client_addr, client_id):
                             break
                         view_state = "select_article"
 
+                # --- Category input state (user types category) ---
                 elif view_state == "category_input":
                     if request not in ALLOWED_CATEGORIES:
                         if not safe_send(client_sock, f"Invalid category. Allowed: {', '.join(sorted(ALLOWED_CATEGORIES))}\n"):
@@ -307,6 +345,7 @@ def handle_client(client_sock, client_addr, client_id):
                             break
                         view_state = "select_article"
 
+                # --- Country input state (user types country code) ---
                 elif view_state == "country_input":
                     if request not in ALLOWED_COUNTRIES:
                         if not safe_send(client_sock, f"Invalid country. Allowed: {', '.join(sorted(ALLOWED_COUNTRIES))}\n"):
@@ -331,12 +370,14 @@ def handle_client(client_sock, client_addr, client_id):
                             break
                         view_state = "select_article"
 
+                # --- Selecting an article by index or going back ---
                 elif view_state == "select_article":
                     if request.upper() == "B":
                         view_state = "menu"
                     else:
                         show_article_by_index(request, current_results, client_sock)
 
+            # --- Sources menu logic (list sources and show details) ---
             elif current_menu == "sources":
                 if view_state == "menu":
                     if request == "1":
@@ -357,6 +398,7 @@ def handle_client(client_sock, client_addr, client_id):
                             view_state = "menu"
                             continue
 
+                        # Limit to 15 sources
                         current_results = resp.get("sources", [])[:15]
                         if not current_results:
                             if not safe_send(client_sock, "No sources.\n"):
@@ -373,6 +415,7 @@ def handle_client(client_sock, client_addr, client_id):
                         if not safe_send(client_sock, "Invalid option.\n"):
                             break
 
+                # --- Source category input ---
                 elif view_state == "src_category_input":
                     if request not in ALLOWED_CATEGORIES:
                         if not safe_send(client_sock, f"Invalid category. Allowed: {', '.join(sorted(ALLOWED_CATEGORIES))}\n"):
@@ -397,6 +440,7 @@ def handle_client(client_sock, client_addr, client_id):
                             break
                         view_state = "select_source"
 
+                # --- Source country input ---
                 elif view_state == "src_country_input":
                     if request not in ALLOWED_COUNTRIES:
                         if not safe_send(client_sock, f"Invalid country. Allowed: {', '.join(sorted(ALLOWED_COUNTRIES))}\n"):
@@ -421,6 +465,7 @@ def handle_client(client_sock, client_addr, client_id):
                             break
                         view_state = "select_source"
 
+                # --- Source language input ---
                 elif view_state == "src_language_input":
                     if request not in ALLOWED_LANGUAGES:
                         if not safe_send(client_sock, f"Invalid language. Allowed: {', '.join(sorted(ALLOWED_LANGUAGES))}\n"):
@@ -445,6 +490,7 @@ def handle_client(client_sock, client_addr, client_id):
                             break
                         view_state = "select_source"
 
+                # --- Selecting a source by index or going back ---
                 elif view_state == "select_source":
                     if request.upper() == "B":
                         view_state = "menu"
@@ -452,6 +498,7 @@ def handle_client(client_sock, client_addr, client_id):
                         show_source_by_index(request, current_results, client_sock)
 
     finally:
+        # Close client socket when done
         try:
             client_sock.close()
         except:
@@ -459,25 +506,36 @@ def handle_client(client_sock, client_addr, client_id):
         print(f"========== End of thread id:{client_id} ==========")
 
 
+# --- Start server and keep accepting clients ---
 def start_server():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        # Allow restarting server without waiting too long
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind((HOST, PORT))
+
+        # Listen for up to 3 waiting connections
         s.listen(3)
         print(f"[SERVER STARTED] Listening on {HOST}:{PORT}")
 
         client_id = 0
         while True:
+            # Accept new client connection
             client_sock, client_addr = s.accept()
             client_id += 1
             print(f"[ACCEPTED] {client_addr}")
 
+            # Start a new thread for each client
             t = threading.Thread(target=handle_client, args=(client_sock, client_addr, client_id), daemon=True)
             t.start()
 
 
+# --- Program entry point ---
 if __name__ == "__main__":
     start_server()
+
+
+
+
 
 
 

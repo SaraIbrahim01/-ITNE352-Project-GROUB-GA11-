@@ -210,7 +210,7 @@ def show_source_by_index(req, results, client_sock):
 def handle_client(client_sock, client_addr, client_id):
     user_name = "Unknown"
     try:
-        # Print start of thread (just for server console)
+        # Print start of thread 
         print(f"\n========== Start of thread id:{client_id} ==========")
 
         # Make reading from socket easier (like reading lines)

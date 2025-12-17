@@ -23,6 +23,7 @@ class NewsClientGUI:
       self.build_login_screen()                   # Create the login page first
 
  # When the window closes, run cleanup
+ 
       self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
 # Utility: Remove all widgets from the window

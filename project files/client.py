@@ -43,11 +43,11 @@ class NewsClientGUI:
        self.username_entry.pack(pady=5) 
 
  # Button to connect to the server
-    tk.Button(
-       self.root,
-       text="Connect",
-       font=("Arial", 14),
-       command= self.connect_to_server
+       tk.Button(
+         self.root,
+         text="Connect",
+         font=("Arial", 14),
+         command= self.connect_to_server
     ).pack(pady=10)
 
  # Connect to server and send username
@@ -78,12 +78,13 @@ class NewsClientGUI:
     
        self.build_chat_screen()
 
+
        recv_thread =threading.Thread(target=self.receive_loop, daemon=True)
        recv_thread.start()
 
  # Main GUI for interacting with server
     
-    def build_chat_screen(self):
+    def build_chat_screen(self): 
        self.clear_window()
 
        tk.Label(
@@ -113,7 +114,7 @@ class NewsClientGUI:
           text="Send",
           font=("Arial", 12),
           command=self.send_input
-      ).pack(side=tk.LEFT, padx=5)
+      ).pack(side=tk.LEFT, padx=5) 
 
        tk.Button(
           bottom_frame,
@@ -183,7 +184,7 @@ class NewsClientGUI:
              pass
           self.root.destroy()
 
- # Program entry point
+# Program entry point
 root= tk.Tk()
 app= NewsClientGUI(root)
 root.mainloop()

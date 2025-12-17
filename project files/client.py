@@ -134,7 +134,7 @@ class NewsClientGUI:
        self.text_area.see(tk.END)
        self.text_area.config(state=tk.DISABLED)
 
-# Receiving loop (runs in a background thread)
+# Receiving loop (runs in a background thread).
     def receive_loop(self):
         if not self.sock:
           return
@@ -150,7 +150,7 @@ class NewsClientGUI:
         except:
            self.append_text("\n[Connection error]\n")
 
- # Send user input to the server
+ # Send user input to the server.
     def send_input(self):
        if not self.sock:
           messagebox.showerror("Error", "Not connected to server ")

@@ -166,9 +166,10 @@ class NewsClientGUI:
           self.append_text("\n[Failed to send message]\n")
           return
        
+       
        self.input_entry.delete(0, tk.END)
       
- # Graceful exit from the application
+ # Graceful exit from the application.
     def quit_client(self):
        try:
           if self.sock:

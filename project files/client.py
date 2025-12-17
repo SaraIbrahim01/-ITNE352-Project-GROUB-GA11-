@@ -142,7 +142,7 @@ class NewsClientGUI:
         elif which == "sources":
             self.append(SOURCES_MENU)
 
-    # ---------- Networking ----------
+    # --------- Networking ---------
     def send_line(self, line):
         if not self.sock:
             return

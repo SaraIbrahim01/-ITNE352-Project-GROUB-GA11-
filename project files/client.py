@@ -8,7 +8,7 @@ SERVER_PORT = 5000
 
 ALLOWED_COUNTRIES = {"au", "ca", "jp", "ae", "sa", "kr", "us", "ma"}
 ALLOWED_LANGUAGES = {"ar", "en"}
-ALLOWED_CATEGORIES = {"business", "general", "health", "science", "sports", "technology"}
+ALLOWED_CATEGORIES = {"business", "general", "health", "science", "sports", "technology"} 
 
 MAIN_MENU = (
     "\nMAIN MENU:\n"

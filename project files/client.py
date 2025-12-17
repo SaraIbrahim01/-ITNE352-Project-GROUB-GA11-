@@ -83,7 +83,7 @@ class NewsClientGUI:
        recv_thread =threading.Thread(target=self.receive_loop, daemon=True)
        recv_thread.start()
 
- # Main GUI for interacting with server
+ # Main GUI for interacting with server.
     
     def build_chat_screen(self): 
        self.clear_window()
@@ -94,7 +94,7 @@ class NewsClientGUI:
           font=("Arial",12,"bold")
        ).pack(pady=5)
 
- # Scrollable text area to display server messages
+ # Scrollable text area to display server messages. 
        self.text_area = scrolledtext.ScrolledText(
          self.root,
          width=80,

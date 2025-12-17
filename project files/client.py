@@ -101,6 +101,7 @@ class NewsClientGUI:
          height=25,
          font=("Consolas",11)
     )
+       
        self.text_area.pack(padx=10, pady=5)
        self.text_area.config(state=tk.DISABLED)
 

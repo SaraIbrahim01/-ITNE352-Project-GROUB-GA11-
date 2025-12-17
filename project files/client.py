@@ -178,7 +178,7 @@ class NewsClientGUI:
           pass
        self.root.destroy()
 
-# Cleanup on window close
+# Cleanup on window close .
     def on_close(self):
        if self.sock:
           try:
@@ -187,7 +187,7 @@ class NewsClientGUI:
              pass
           self.root.destroy()
 
-# Program entry point
+# Program entry point. 
 root= tk.Tk()
 app= NewsClientGUI(root)
 root.mainloop()

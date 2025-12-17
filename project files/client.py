@@ -150,7 +150,7 @@ class NewsClientGUI:
         except:
            self.append_text("\n[Connection error]\n")
 
- # Send user input to the server.
+ #  Send user input to the server.
     def send_input(self):
        if not self.sock:
           messagebox.showerror("Error", "Not connected to server ")

@@ -43,7 +43,7 @@ class NewsClientGUI:
        self.username_entry = tk.Entry(self.root, font=("Arial", 14))  
        self.username_entry.pack(pady=5) 
 
- # Button to connect to the server
+ # Button to connect to the server.
        tk.Button(
          self.root,
          text="Connect",

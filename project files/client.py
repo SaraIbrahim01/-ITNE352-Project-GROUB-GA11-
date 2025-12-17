@@ -17,7 +17,7 @@ class NewsClientGUI:
       self.root = root
       self.root.title("News Client - GUI Version") 
 
-      self.sock: socket.socket | None = None       # TCP socket connection
+      self.sock: socket.socket | None = None       # TCP socket connection.
       self.username: str =""                        # User's chosen name
 
       self.build_login_screen()                   # Create the login page first

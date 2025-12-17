@@ -1,219 +1,250 @@
-# News Service Client - GUI Version (Tkinter)
-
-
 import socket
 import threading
 import tkinter as tk
-from tkinter import scrolledtext , messagebox
+from tkinter import scrolledtext, messagebox
 
+SERVER_HOST = "127.0.0.1"
+SERVER_PORT = 5000
 
-# Server settings (change HOST if the server is on another machine)
+ALLOWED_COUNTRIES = {"au", "ca", "jp", "ae", "sa", "kr", "us", "ma"}
+ALLOWED_LANGUAGES = {"ar", "en"}
+ALLOWED_CATEGORIES = {"business", "general", "health", "science", "sports", "technology"}
 
-SERVER_HOST = "127.0.0.1"      # Server settings-> (change HOST if the server is on another machine)
-SERVER_PORT = 5000             #  Must match your server port 
+MAIN_MENU = (
+    "\nMAIN MENU:\n"
+    "1 - Search headlines\n"
+    "2 - List of Sources\n"
+    "3 - Quit\n"
+)
+
+HEADLINES_MENU = (
+    "\nHEADLINES MENU:\n"
+    "1 - Search for keywords\n"
+    "2 - Search by category\n"
+    "3 - Search by country\n"
+    "4 - List all new headlines\n"
+    "5 - Back to the main menu\n"
+)
+
+SOURCES_MENU = (
+    "\nSOURCES MENU:\n"
+    "1 - Search by category\n"
+    "2 - Search by country\n"
+    "3 - Search by language\n"
+    "4 - List all\n"
+    "5 - Back to the main menu\n"
+)
+
+INDEX_PROMPT = "\nEnter index number for details OR B to go back:\n"
+
 
 class NewsClientGUI:
-    def __init__(self, root: tk.Tk):       # Initialize the GUI window and build the  login screen.
-      self.root = root
-      self.root.title("News Client - GUI Version") 
+    def __init__(self, root):
+        self.root = root
+        self.root.title("News Client (Very Simple)")
 
-      self.sock: socket.socket | None = None       # TCP socket connection.
-      self.username: str =""                        # User's chosen name
+        self.sock = None
+        self.username = ""
 
-      self.build_login_screen()                   # Create the login page first
+        self.menu = "main"
+        self.waiting = None
 
- # When the window closes, run cleanup
+        self._alive = False
+        self._recv_thread = None
 
-      self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+        self.build_login()
 
-# Utility: Remove all widgets from the window
-    def clear_window(self):
-       for widget in self.root.winfo_children():
-          widget.destroy()
+    # ---------- UI ----------
+    def clear(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
 
- # Login screen (username + connect button).
-    def build_login_screen(self):
-       self.clear_window()
+    def build_login(self):
+        self.clear()
 
-       tk.Label(
-          self.root, text="Enter your username:", font=("Arial", 14)
-       ).pack(pady=10)
+        tk.Label(self.root, text="Username:", font=("Arial", 14)).pack(pady=10)
 
- # Text field for username 
-       self.username_entry = tk.Entry(self.root, font=("Arial", 14))  
-       self.username_entry.pack(pady=5) 
+        self.user_entry = tk.Entry(self.root, font=("Arial", 14))
+        self.user_entry.pack(pady=5)
+        self.user_entry.focus_set()
 
- # Button to connect to the server.
-       tk.Button(
-         self.root,
-         text="Connect",
-         font=("Arial", 14),
-         command= self.connect_to_server
-    ).pack(pady=10)
+        tk.Button(
+            self.root,
+            text="Connect",
+            font=("Arial", 14),
+            command=self.connect
+        ).pack(pady=10)
 
- # Connect to server and send username
-    def connect_to_server(self):
-       username= self.username_entry.get().strip()
-       if not username:
-          messagebox.showerror("Error", "Please enter a username ")
-          return
-       self.username= username
+    def build_chat(self):
+        self.clear()
 
-       try:
-       
-           self.sock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-           self.sock.connect((SERVER_HOST, SERVER_PORT))
-       except Exception as e:
-            messagebox.showerror("Connection Error", str(e))
-            self.sock=None
+        tk.Label(
+            self.root,
+            text=f"Connected as: {self.username}",
+            font=("Arial", 11, "bold")
+        ).pack(pady=5)
+
+        self.text = scrolledtext.ScrolledText(
+            self.root,
+            width=85,
+            height=22,
+            font=("Consolas", 11)
+        )
+        self.text.pack(padx=10, pady=5)
+        self.text.config(state=tk.DISABLED)
+
+        bottom = tk.Frame(self.root)
+        bottom.pack(pady=6)
+
+        self.entry = tk.Entry(bottom, width=45, font=("Arial", 12))
+        self.entry.pack(side=tk.LEFT, padx=5)
+        self.entry.focus_set()
+
+        tk.Button(
+            bottom,
+            text="Send",
+            width=10,
+            command=self.on_send
+        ).pack(side=tk.LEFT, padx=5)
+
+        tk.Button(
+            bottom,
+            text="Quit",
+            width=10,
+            command=self.quit_client
+        ).pack(side=tk.LEFT, padx=5)
+
+        self.root.bind("<Return>", lambda e: self.on_send())
+
+        self.show_menu("main")
+
+    def _append_ui(self, msg):
+        if not hasattr(self, "text"):
             return
-    
-       try:
-       
-           self.sock.sendall((self.username + "\n").encode("utf-8"))
-       except Exception as e:
-            messagebox.showerror("Send Error", str(e))
-            self.sock.close()
+
+        self.text.config(state=tk.NORMAL)
+        self.text.insert(tk.END, msg)
+        self.text.see(tk.END)
+        self.text.config(state=tk.DISABLED)
+
+    def append(self, msg):
+        self.root.after(0, self._append_ui, msg)
+
+    def show_menu(self, which):
+        self.menu = which
+        self.waiting = None
+
+        if which == "main":
+            self.append(MAIN_MENU)
+        elif which == "headlines":
+            self.append(HEADLINES_MENU)
+        elif which == "sources":
+            self.append(SOURCES_MENU)
+
+    # ---------- Networking ----------
+    def send_line(self, line):
+        if not self.sock:
+            return
+        try:
+            self.sock.sendall((line.strip() + "\n").encode("utf-8"))
+        except Exception:
+            self.append("\n[Send error]\n")
+
+    def receive_loop(self):
+        try:
+            while self._alive:
+                data = self.sock.recv(4096)
+                if not data:
+                    self.append("\n[Disconnected from server]\n")
+                    break
+
+                msg = data.decode("utf-8", errors="replace")
+                self.append(msg)
+
+                if self._looks_like_list(msg):
+                    self.waiting = "index"
+                    self.append(INDEX_PROMPT)
+
+        except Exception:
+            self.append("\n[Connection error]\n")
+        finally:
+            self._alive = False
+
+    def _looks_like_list(self, msg):
+        for line in msg.splitlines():
+            s = line.strip()
+            if s and s[0].isdigit() and ")" in s[:4]:
+                return True
+        return False
+
+    # ---------- Connect ----------
+    def connect(self):
+        name = self.user_entry.get().strip()
+        if not name:
+            messagebox.showerror("Error", "Enter username")
+            return
+
+        self.username = name
+
+        try:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.connect((SERVER_HOST, SERVER_PORT))
+            self.sock.sendall((self.username + "\n").encode("utf-8"))
+        except Exception as e:
+            messagebox.showerror("Connection error", str(e))
             self.sock = None
             return
-    
-       self.build_chat_screen()
 
+        self.build_chat()
+        self._alive = True
 
-       recv_thread =threading.Thread(target=self.receive_loop, daemon=True)
-       recv_thread.start()
+        self._recv_thread = threading.Thread(
+            target=self.receive_loop,
+            daemon=True
+        )
+        self._recv_thread.start()
 
- # Main GUI for interacting with server.
-    
-    def build_chat_screen(self): 
-       self.clear_window()
+    # ---------- Input handling ----------
+    def on_send(self):
+        text = self.entry.get().strip()
+        if not text:
+            return
 
-       tk.Label(
-          self.root,
-          text=f"Connected as:{self.username}",
-          font=("Arial",12,"bold")
-       ).pack(pady=5)
+        self.entry.delete(0, tk.END)
+        self.append(f"\n> {text}\n")
 
- # Scrollable text area to display server messages. 
-       self.text_area = scrolledtext.ScrolledText(
-         self.root,
-         width=80,
-         height=25,
-         font=("Consolas",11)
-    )
-       
-       self.text_area.pack(padx=10, pady=5)
-       self.text_area.config(state=tk.DISABLED)
+        if self.waiting == "index":
+            if text.upper() == "B":
+                self.send_line("B")
+                self.waiting = None
+                self.show_menu(self.menu)
+                return
+            try:
+                int(text)
+                self.send_line(text)
+            except ValueError:
+                self.append("Please enter a number or B.\n")
+            return
 
-       bottom_frame = tk.Frame(self.root)
-       bottom_frame.pack(pady=5)
+        self.send_line(text)
 
-       self.input_entry = tk.Entry(bottom_frame, font=("Arial", 12), width=40)
-       self.input_entry.pack(side=tk.LEFT, padx=5)
-
-       tk.Button(
-          bottom_frame,
-          text="Send",
-          font=("Arial", 12),
-          command=self.send_input
-      ).pack(side=tk.LEFT, padx=5) 
-
-       tk.Button(
-          bottom_frame,
-          text="Quit",
-          font=("Arial", 12 ),
-          command=self.quit_client
-      ).pack(side=tk.LEFT, padx=5)
-
-       self.root.bind("<Return>", lambda event: self.send_input())
-
-# Add text messages from server into the GUI text area
-    def append_text(self, text: str):
-       self.text_area.config(state=tk.NORMAL)
-       self.text_area.insert(tk.END, text)
-       self.text_area.see(tk.END)
-       self.text_area.config(state=tk.DISABLED)
-
-# Receiving loop (runs in a background thread).
-    def receive_loop(self):
-        if not self.sock:
-          return
-         
-        try:
-          while True:
-            data= self.sock.recv(4096)
-            if not data:
-              self.append_text("\n[Disconnected from server]\n")
-              break
-            self.append_text(data.decode("utf-8"))
-
-        except:
-           self.append_text("\n[Connection error]\n")
-
- #  Send user input to the server.
-    def send_input(self):
-       if not self.sock:
-          messagebox.showerror("Error", "Not connected to server ")
-          return
-       
-       user_input= self.input_entry.get().strip()
-       if not user_input:
-          return
-       try:
-          self.sock.sendall((user_input+ "\n").encode("utf-8"))
-    
-       except:
-          self.append_text("\n[Failed to send message]\n")
-          return
-       
-       
-       self.input_entry.delete(0, tk.END)
-      
- # Graceful exit from the application.
+    # ---------- Quit ----------
     def quit_client(self):
-       try:
-          if self.sock:
-             self.sock.sendall(b"4\n")
-       except:
-          pass
-       self.root.destroy()
+        self._alive = False
+        try:
+            if self.sock:
+                self.send_line("3")
+                self.sock.close()
+        except Exception:
+            pass
+        self.root.destroy()
 
-# Cleanup on window close .
     def on_close(self):
-       if self.sock:
-          try:
-             self.sock.close()
-          except:
-             pass
-          self.root.destroy()
-
-#  Program entry point. 
-root= tk.Tk()
-app= NewsClientGUI(root)
-root.mainloop()
-
-   
+        self.quit_client()
 
 
-
-
-       
-       
-       
-  
-
-
-       
-
-
-
-
-    
-
-
-
-     
-       
-
-
-
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = NewsClientGUI(root)
+    root.mainloop()

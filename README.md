@@ -18,8 +18,8 @@ S1 2025–2026
 - Course Code: ITNE352 – Network Programming  
 - Section: 1  
 - Students:
-  - Student Name: Sara Ibrahim Ahmed | Student ID: 202303313   
-  - Student Name: Dala'a Mohammad | Student ID:  202303215
+  - Student Name: Sara Ibrahim Ahmed | Student ID: 202303313 (server)
+  - Student Name: Dala'a Mohammad | Student ID:  202303215 (client)
     
 ## Table of Contents
 

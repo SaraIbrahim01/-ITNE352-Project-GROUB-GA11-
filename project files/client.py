@@ -46,6 +46,7 @@ class NewsClientGUI:
         self.sock = None
         self.username = ""
 
+        # Client-side state
         self.menu = "main"
         self.waiting = None
 
@@ -57,39 +58,27 @@ class NewsClientGUI:
 
     # ---------- UI ----------
     def clear(self):
-        for widget in self.root.winfo_children():
-            widget.destroy()
+        for w in self.root.winfo_children():
+            w.destroy()
 
     def build_login(self):
         self.clear()
 
         tk.Label(self.root, text="Username:", font=("Arial", 14)).pack(pady=10)
-
         self.user_entry = tk.Entry(self.root, font=("Arial", 14))
         self.user_entry.pack(pady=5)
         self.user_entry.focus_set()
 
-        tk.Button(
-            self.root,
-            text="Connect",
-            font=("Arial", 14),
-            command=self.connect
-        ).pack(pady=10)
+        tk.Button(self.root, text="Connect", font=("Arial", 14), command=self.connect).pack(pady=10)
 
     def build_chat(self):
         self.clear()
 
-        tk.Label(
-            self.root,
-            text=f"Connected as: {self.username}",
-            font=("Arial", 11, "bold")
-        ).pack(pady=5)
+        tk.Label(self.root, text=f"Connected as: {self.username}",
+                 font=("Arial", 11, "bold")).pack(pady=5)
 
         self.text = scrolledtext.ScrolledText(
-            self.root,
-            width=85,
-            height=22,
-            font=("Consolas", 11)
+            self.root, width=85, height=22, font=("Consolas", 11)
         )
         self.text.pack(padx=10, pady=5)
         self.text.config(state=tk.DISABLED)
@@ -101,40 +90,29 @@ class NewsClientGUI:
         self.entry.pack(side=tk.LEFT, padx=5)
         self.entry.focus_set()
 
-        tk.Button(
-            bottom,
-            text="Send",
-            width=10,
-            command=self.on_send
-        ).pack(side=tk.LEFT, padx=5)
-
-        tk.Button(
-            bottom,
-            text="Quit",
-            width=10,
-            command=self.quit_client
-        ).pack(side=tk.LEFT, padx=5)
+        tk.Button(bottom, text="Send", width=10,
+                  command=self.on_send).pack(side=tk.LEFT, padx=5)
+        tk.Button(bottom, text="Quit", width=10,
+                  command=self.quit_client).pack(side=tk.LEFT, padx=5)
 
         self.root.bind("<Return>", lambda e: self.on_send())
 
         self.show_menu("main")
 
-    def _append_ui(self, msg):
+    def _append_ui(self, msg: str):
         if not hasattr(self, "text"):
             return
-
         self.text.config(state=tk.NORMAL)
         self.text.insert(tk.END, msg)
         self.text.see(tk.END)
         self.text.config(state=tk.DISABLED)
 
-    def append(self, msg):
+    def append(self, msg: str):
         self.root.after(0, self._append_ui, msg)
 
-    def show_menu(self, which):
+    def show_menu(self, which: str):
         self.menu = which
         self.waiting = None
-
         if which == "main":
             self.append(MAIN_MENU)
         elif which == "headlines":
@@ -143,7 +121,7 @@ class NewsClientGUI:
             self.append(SOURCES_MENU)
 
     # ---------- Networking ----------
-    def send_line(self, line):
+    def send_line(self, line: str):
         if not self.sock:
             return
         try:
@@ -171,9 +149,9 @@ class NewsClientGUI:
         finally:
             self._alive = False
 
-    def _looks_like_list(self, msg):
-        for line in msg.splitlines():
-            s = line.strip()
+    def _looks_like_list(self, msg: str) -> bool:
+        for ln in msg.splitlines():
+            s = ln.strip()
             if s and s[0].isdigit() and ")" in s[:4]:
                 return True
         return False
@@ -186,7 +164,6 @@ class NewsClientGUI:
             return
 
         self.username = name
-
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.connect((SERVER_HOST, SERVER_PORT))
@@ -198,10 +175,8 @@ class NewsClientGUI:
 
         self.build_chat()
         self._alive = True
-
         self._recv_thread = threading.Thread(
-            target=self.receive_loop,
-            daemon=True
+            target=self.receive_loop, daemon=True
         )
         self._recv_thread.start()
 
@@ -210,9 +185,47 @@ class NewsClientGUI:
         text = self.entry.get().strip()
         if not text:
             return
-
         self.entry.delete(0, tk.END)
+
         self.append(f"\n> {text}\n")
+
+        if self.waiting == "keyword":
+            self.send_line(text)
+            self.waiting = None
+            return
+
+        if self.waiting in {"hl_category", "src_category"}:
+            if text not in ALLOWED_CATEGORIES:
+                self.append(
+                    f"Invalid category. Allowed: "
+                    f"{', '.join(sorted(ALLOWED_CATEGORIES))}\n"
+                )
+                return
+            self.send_line(text)
+            self.waiting = None
+            return
+
+        if self.waiting in {"hl_country", "src_country"}:
+            if text not in ALLOWED_COUNTRIES:
+                self.append(
+                    f"Invalid country. Allowed: "
+                    f"{', '.join(sorted(ALLOWED_COUNTRIES))}\n"
+                )
+                return
+            self.send_line(text)
+            self.waiting = None
+            return
+
+        if self.waiting == "src_language":
+            if text not in ALLOWED_LANGUAGES:
+                self.append(
+                    f"Invalid language. Allowed: "
+                    f"{', '.join(sorted(ALLOWED_LANGUAGES))}\n"
+                )
+                return
+            self.send_line(text)
+            self.waiting = None
+            return
 
         if self.waiting == "index":
             if text.upper() == "B":
@@ -227,17 +240,98 @@ class NewsClientGUI:
                 self.append("Please enter a number or B.\n")
             return
 
-        self.send_line(text)
+        if self.menu == "main":
+            if text == "1":
+                self.send_line("1")
+                self.show_menu("headlines")
+            elif text == "2":
+                self.send_line("2")
+                self.show_menu("sources")
+            elif text == "3":
+                self.quit_client()
+            else:
+                self.append("Invalid option.\n")
+                self.append(MAIN_MENU)
+            return
+
+        if self.menu == "headlines":
+            if text == "1":
+                self.send_line("1")
+                self.waiting = "keyword"
+                self.append("Enter keyword:\n")
+            elif text == "2":
+                self.send_line("2")
+                self.waiting = "hl_category"
+                self.append(
+                    f"Enter category "
+                    f"({', '.join(sorted(ALLOWED_CATEGORIES))}):\n"
+                )
+            elif text == "3":
+                self.send_line("3")
+                self.waiting = "hl_country"
+                self.append(
+                    f"Enter country code "
+                    f"({', '.join(sorted(ALLOWED_COUNTRIES))}):\n"
+                )
+            elif text == "4":
+                self.send_line("4")
+            elif text == "5":
+                self.send_line("5")
+                self.show_menu("main")
+            else:
+                self.append("Invalid option.\n")
+                self.append(HEADLINES_MENU)
+            return
+
+        if self.menu == "sources":
+            if text == "1":
+                self.send_line("1")
+                self.waiting = "src_category"
+                self.append(
+                    f"Enter category "
+                    f"({', '.join(sorted(ALLOWED_CATEGORIES))}):\n"
+                )
+            elif text == "2":
+                self.send_line("2")
+                self.waiting = "src_country"
+                self.append(
+                    f"Enter country code "
+                    f"({', '.join(sorted(ALLOWED_COUNTRIES))}):\n"
+                )
+            elif text == "3":
+                self.send_line("3")
+                self.waiting = "src_language"
+                self.append(
+                    f"Enter language "
+                    f"({', '.join(sorted(ALLOWED_LANGUAGES))}):\n"
+                )
+            elif text == "4":
+                self.send_line("4")
+            elif text == "5":
+                self.send_line("5")
+                self.show_menu("main")
+            else:
+                self.append("Invalid option.\n")
+                self.append(SOURCES_MENU)
+            return
 
     # ---------- Quit ----------
     def quit_client(self):
         self._alive = False
         try:
             if self.sock:
-                self.send_line("3")
+                try:
+                    self.send_line("3")
+                except Exception:
+                    pass
+                try:
+                    self.sock.shutdown(socket.SHUT_RDWR)
+                except Exception:
+                    pass
                 self.sock.close()
         except Exception:
             pass
+        self.sock = None
         self.root.destroy()
 
     def on_close(self):

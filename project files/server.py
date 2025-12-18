@@ -557,10 +557,7 @@ def start_server():
 # Program entry point
 # =========================
 if __name__ == "__main__":
-    start_server()
-
-
-
+ start_server()
 
 
 

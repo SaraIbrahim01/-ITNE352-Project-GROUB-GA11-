@@ -3,19 +3,26 @@
 # News Service System – Client/Server Project
 
 ## Project Description
+
 This project implements a client–server News Service System using Python, TCP sockets, multithreading, JSON, NewsAPI.org, and file I/O.  
 The server retrieves current news headlines and news sources from NewsAPI, saves the raw API responses into JSON files for evaluation purposes, and serves multiple clients simultaneously.  
 The client provides a simple graphical user interface (GUI) that allows users to navigate menus, send requests, view lists of results (limited to 15 items), and request full details of a selected item.
+
 ## Semester
+
 S1 2025–2026
+
 ## Group
+
 - Group Name: GA11  
 - Course Code: ITNE352 – Network Programming  
 - Section: 1  
 - Students:
   - Student Name: Sara Ibrahim Ahmed | Student ID: 202303313   
-  - Student Name: Dala'a Mohammad | Student ID:  202303215 
+  - Student Name: Dala'a Mohammad | Student ID:  202303215
+    
 ## Table of Contents
+
 1. Requirements  
 2. How to Run the System  
 3. How to Use the System  
@@ -26,6 +33,7 @@ S1 2025–2026
 8. Resources  
 
 ## Requirements
+
 - Python 3.10 or higher  
 - Internet connection  
 - requests library  
@@ -35,6 +43,7 @@ To install required library:
 pip install requests
 
 ## How to Run the System
+
 1. Open a terminal in the project directory.  
 2. Run the server:
    python server.py  
@@ -45,11 +54,13 @@ pip install requests
 
 ## How to Use the System
 Main Menu:
+
 1 - Search headlines  
 2 - List of Sources  
 3 - Quit  
 
 Headlines Menu:
+
 1 - Search for keywords  
 2 - Search by category  
 3 - Search by country  

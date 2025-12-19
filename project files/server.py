@@ -100,11 +100,7 @@ def safe_send(client_sock, text: str) -> bool:
         return True
     except (BrokenPipeError, ConnectionResetError, OSError):
         return False
-
-
-# =========================
-# File output (project requirement)
-# =========================
+    
 
 # Save API response into a JSON file
 def write_json_file(user, option_tag, data):
@@ -112,6 +108,7 @@ def write_json_file(user, option_tag, data):
     with open(file_name, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     return file_name
+
 
 
 # =========================

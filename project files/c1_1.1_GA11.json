@@ -1,0 +1,123 @@
+{
+  "status": "ok",
+  "totalResults": 10,
+  "articles": [
+    {
+      "source": {
+        "id": "the-washington-post",
+        "name": "The Washington Post"
+      },
+      "author": "Meg Kelly, Susannah George, Leo Sands, Victoria Bisset",
+      "title": "These are the oil tankers targeted by Trump’s Venezuela blockade",
+      "description": "More than 30 oil tankers designated by the Treasury Department and operating in the Caribbean could be affected immediately by Trump’s Venezuelan blockade.",
+      "url": "https://www.washingtonpost.com/world/2025/12/17/venezuela-tankers-sanction-blockade-trump/",
+      "urlToImage": "https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/WIZPUUNVISWFUYRKL5YI3SVWWA.JPG&w=1440",
+      "publishedAt": "2025-12-17T23:02:17Z",
+      "content": "As President Donald Trump ramps up pressure on Venezuelan President Nicolás Maduro, the United States is targeting oil tankers operating under U.S. sanctions and bound for or departing Venezuela, wit… [+67 chars]"
+    },
+    {
+      "source": {
+        "id": "al-jazeera-english",
+        "name": "Al Jazeera English"
+      },
+      "author": "Al Jazeera Staff",
+      "title": "Trump aide Stephen Miller suggests Venezuelan oil belongs to US",
+      "description": "White House deputy chief of staff says US ‘created the oil industry in Venezuela’ as tensions intensify with Caracas.",
+      "url": "https://www.aljazeera.com/news/2025/12/17/trump-aide-stephen-miller-suggests-venezuelan-oil-belongs-to-us",
+      "urlToImage": "https://www.aljazeera.com/wp-content/uploads/2025/12/2025-10-29T042617Z_121096996_RC2GLHAPC4TE_RTRMADP_3_USA-TRUMP-SOUTHKOREA-1766001773.jpg?resize=1920%2C1440",
+      "publishedAt": "2025-12-17T22:19:44Z",
+      "content": "Stephen Miller, a top aide to United States President Donald Trump, has suggested that Venezuelas oil belongs to Washington, describing the nationalisation of the South American countrys petroleum in… [+4683 chars]"
+    },
+    {
+      "source": {
+        "id": "australian-financial-review",
+        "name": "Australian Financial Review"
+      },
+      "author": "Angela Macdonald-Smith",
+      "title": "Woodside CEO: Meg O’Neill departs for BP, Liz Westcott named acting chief executive",
+      "description": "The departure leaves the country’s largest oil and gas producer searching for a new managing director as it prepares for a major expansion in the US.",
+      "url": "http://www.afr.com/companies/energy/woodside-s-o-neill-hired-as-bp-ceo-20251218-p5nomz",
+      "urlToImage": "https://static.ffx.io/images/$zoom_0.5081%2C$multiply_2%2C$ratio_1.777778%2C$width_1059%2C$x_945%2C$y_4/t_crop_custom/c_scale%2Cw_800%2Cq_88%2Cf_jpg/t_afr_no_label_no_age_social_wm/8e3bab42e874fc665b388876f8bbaae5e9b1dea0",
+      "publishedAt": "2025-12-17T22:15:21Z",
+      "content": "Woodside Energy chief executive Meg ONeill has been hired by global major BP as its next chief executive, leaving Australias biggest listed oil and gas producer hunting for a new boss.\r\nONeill will t… [+104 chars]"
+    },
+    {
+      "source": {
+        "id": "financial-post",
+        "name": "Financial Post"
+      },
+      "author": "Bloomberg News",
+      "title": "Canadian oilsands buck price decline with plans for 2026 growth",
+      "description": "Canadian oil sands producers plan to expand production next year despite an impending supply glut that threatens crude prices. Read more.",
+      "url": "https://financialpost.com/news/canadian-oilsands-price-decline-plans-2026-growth",
+      "urlToImage": "https://smartcdn.gprod.postmedia.digital/financialpost/wp-content/uploads/2025/12/1218-bc-cenovus-.jpg",
+      "publishedAt": "2025-12-17T18:37:15.6632408Z",
+      "content": "Canadian oil sands producers lead by Cenovus Energy Inc. plan to expand production next year despite an impending supply glut that threatens to deepen the slump in crude prices.\r\nTHIS CONTENT IS RESE… [+3544 chars]"
+    },
+    {
+      "source": {
+        "id": "cnn",
+        "name": "CNN"
+      },
+      "author": "Kit Maher, Kevin Liptak",
+      "title": "Trump orders ‘total and complete blockade’ of sanctioned oil tankers coming to and leaving Venezuela",
+      "description": "President Donald Trump said Tuesday he was ordering a “total and complete blockade” of sanctioned oil tankers coming to and leaving from Venezuela, ratcheting up pressure against leader Nicolás Maduro’s regime and suggesting an economic motive to the US’ mili…",
+      "url": "https://www.cnn.com/2025/12/16/politics/blockade-venezuela-sanctioned-oil-tankers",
+      "urlToImage": "https://media.cnn.com/api/v1/images/stellar/prod/c-gettyimages-2252086471.jpg?c=16x9&q=w_800,c_fill",
+      "publishedAt": "2025-12-17T01:31:11Z",
+      "content": "President Donald Trump said Tuesday he was ordering a total and complete blockade of sanctioned oil tankers coming to and leaving from Venezuela, ratcheting up pressure against leader Nicolás Maduros… [+4663 chars]"
+    },
+    {
+      "source": {
+        "id": "medical-news-today",
+        "name": "Medical News Today"
+      },
+      "author": "Corrie Pelc",
+      "title": "Polyphenol-rich cocoa, coffee, and berries may help support heart health",
+      "description": "Researchers found that consuming foods rich in polyphenols — such as coffee, berries, cocoa, and olive oil — may help improve heart health long-term.",
+      "url": "https://www.medicalnewstoday.com/articles/polyphenol-rich-foods-cocoa-coffee-berries-olive-oil-support-heart-health",
+      "urlToImage": "https://media.post.rvohealth.io/wp-content/uploads/sites/3/2025/12/berries-baskets-1200-628-facebook.jpg",
+      "publishedAt": "2025-12-15T18:15:49Z",
+      "content": "<ul><li>There are several factors that play a role in keeping your heart healthy, such as the food you eat. </li><li>Past studies have shown that foods rich in certain nutrients can offer heart healt… [+7266 chars]"
+    },
+    {
+      "source": {
+        "id": "techcrunch",
+        "name": "TechCrunch"
+      },
+      "author": "Tim De Chant",
+      "title": "Mycocycle uses mushrooms to upcycle old tires and construction waste | TechCrunch",
+      "description": "The startup's fungi use their mycelium to consume oil-based rubbers and plastics, creating new bio-based materials in the process.",
+      "url": "https://techcrunch.com/2024/05/08/mycocycle-uses-mushrooms-to-upcycle-old-tires-and-construction-waste/",
+      "urlToImage": "https://techcrunch.com/wp-content/uploads/2024/05/GettyImages-1350655821.jpeg?resize=1200,796",
+      "publishedAt": "2024-05-07T18:07:09Z",
+      "content": "Usually, when something starts to rot, it gets pitched in the trash. But Joanne Rodriguez wants to turn the concept of rot on its head by growing fungus on trash to turn it into something better.\r\nWe… [+4229 chars]"
+    },
+    {
+      "source": {
+        "id": "lequipe",
+        "name": "L'equipe"
+      },
+      "author": "L'EQUIPE",
+      "title": "Manchester City au complet pour la finale de la Ligue des champions",
+      "description": "Manchester City a dévoilé un groupe de vingt-trois joueurs pour la finale de Ligue des champions samedi contre l'Inter Milan, à Istanbul (21 heures).",
+      "url": "https://www.lequipe.fr/Football/Actualites/Manchester-city-au-complet-pour-la-finale-de-la-ligue-des-champions/1401522",
+      "urlToImage": "https://medias.lequipe.fr/img-photo-jpg/kyle-walker-est-present-dans-le-groupe-de-manchester-city-presse-sports/1500000001796010/0:0,1995:1330-640-427-75/57f76.jpg",
+      "publishedAt": "2023-06-08T14:46:51+00:00",
+      "content": "L'entraîneur de Manchester City Pep Guardiola devrait pouvoir compter sur toutes ses forces vives pour la finale de la Ligue des champions samedi à Istanbul, contre l'Inter Milan (21 heures). Le club… [+235 chars]"
+    },
+    {
+      "source": {
+        "id": "new-scientist",
+        "name": "New Scientist"
+      },
+      "author": null,
+      "title": "Adding wild fungi to soil could make trees store more carbon",
+      "description": "A loblolly pine plantation in the state of Georgia is the test site for a start-up company trying to see if improving the fungi and other microbes in soil can help trees grow bigger and faster",
+      "url": "https://www.newscientist.com/article/2361604-adding-wild-fungi-to-soil-could-make-trees-store-more-carbon/",
+      "urlToImage": "https://images.newscientist.com/wp-content/uploads/2023/02/28175105/SEI_146112168.jpg",
+      "publishedAt": "2023-03-01T00:00:00Z",
+      "content": "By James Dinneen\r\nMycorrhizal fungi colonising a host plant’s root tissues\r\nEmmanuel Lattes//Alamy\r\nA start-up has begun planting fungi and other microbes in soil collected from intact forests at a t… [+417 chars]"
+    }
+  ]
+}
